@@ -1,62 +1,59 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'components.dart';
+import 'detail_project.dart';
 import 'models.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ProjectViewModel(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  ProjectRouterDelegate _routerDelegate = ProjectRouterDelegate();
+  ProjectRouteInformationParser _routeInformationParser =
+      ProjectRouteInformationParser();
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TAJAOUART Mounir',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
+    return MaterialApp.router(
+      title: 'Projects App',
+      routerDelegate: _routerDelegate,
+      routeInformationParser: _routeInformationParser,
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  final List<Project> projects;
+  final ValueChanged<Project> onTapped;
+
+  MyHomePage({
+    @required this.projects,
+    @required this.onTapped,
+  });
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Project> projects = [];
-
   @override
   void initState() {
     super.initState();
-    loadData();
-  }
-
-  loadData() async {
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection('projects').get();
-
-    List<Project> listProjects = Project.fromJsonList(querySnapshot.docs);
-
-    if (listProjects.isNotEmpty) {
-      setState(() {
-        projects = listProjects;
-      });
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load Suggestions from Server');
-    }
+    Provider.of<ProjectViewModel>(context, listen: false).fetchProjects();
   }
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<ProjectViewModel>(context);
+
     return Scaffold(
       body: Container(
           width: MediaQuery.of(context).size.width,
@@ -99,57 +96,167 @@ class _MyHomePageState extends State<MyHomePage> {
                       fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 24),
-                Column(
-                  children: getProjects(),
-                )
+                viewModel.projects != null && viewModel.projects.length > 0
+                    ? Column(
+                        children: [
+                          for (var project in viewModel.projects)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 16.0, top: 16),
+                              child: InkWell(
+                                onTap: () => widget.onTapped(project),
+                                child: ProjectWidget(project),
+                              ),
+                            )
+                        ],
+                      )
+                    : Center(
+                        child: CircularProgressIndicator(),
+                      )
               ],
             ),
           )),
     );
   }
+}
 
-  List<Widget> getProjects() {
-    return List.generate(projects.length, (index) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16.0, top: 16),
-        child: InkWell(
-          onTap: () {},
-          child: Container(
-            height: 208,
-            width: 266,
-            decoration: BoxDecoration(
-                color: Colors.red,
-                image: DecorationImage(
-                  image: NetworkImage(projects[index].bigImagePath.toString()),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(4))),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                decoration: new BoxDecoration(
-                    gradient: new LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(int.parse("0xFF${projects[index].color}"))
-                        .withAlpha(122),
-                    Colors.black,
-                  ],
-                )),
-                height: 50,
-                width: 266,
-                child: Center(
-                  child: Text(
-                    projects[index].name,
-                    style: TextStyle(color: Colors.white, fontSize: 17),
-                  ),
-                ),
-              ),
-            ),
+class ProjectRouteInformationParser
+    extends RouteInformationParser<ProjectRoutePath> {
+  @override
+  Future<ProjectRoutePath> parseRouteInformation(
+      RouteInformation routeInformation) async {
+    final uri = Uri.parse(routeInformation.location);
+    // Handle '/'
+    if (uri.pathSegments.length == 0) {
+      return ProjectRoutePath.home();
+    }
+
+    // Handle '/project/:name'
+    if (uri.pathSegments.length == 2) {
+      if (uri.pathSegments[0] != 'project') return ProjectRoutePath.unknown();
+      var remaining = uri.pathSegments[1];
+      var name = remaining.toString();
+      if (name == null) return ProjectRoutePath.unknown();
+      return ProjectRoutePath.details(name);
+    }
+
+    // Handle unknown routes
+    return ProjectRoutePath.unknown();
+  }
+
+  @override
+  RouteInformation restoreRouteInformation(ProjectRoutePath path) {
+    if (path.isUnknown) {
+      return RouteInformation(location: '/404');
+    }
+    if (path.isHomePage) {
+      return RouteInformation(location: '/');
+    }
+    if (path.isDetailsPage) {
+      return RouteInformation(location: '/project/${path.name}');
+    }
+    return null;
+  }
+}
+
+class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<ProjectRoutePath> {
+  final GlobalKey<NavigatorState> navigatorKey;
+  TransitionDelegate transitionDelegate = NoAnimationTransitionDelegate();
+
+  Project _selectedProject;
+  String name;
+  bool show404 = false;
+
+  ProjectRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
+
+  ProjectRoutePath get currentConfiguration {
+    if (show404) {
+      return ProjectRoutePath.unknown();
+    }
+    return (_selectedProject == null && name == null)
+        ? ProjectRoutePath.home()
+        : ProjectRoutePath.details(
+            _selectedProject == null ? name : _selectedProject.name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navigatorKey,
+      transitionDelegate: transitionDelegate,
+      pages: [
+        MaterialPage(
+          key: ValueKey('ProjectsListPage'),
+          child: MyHomePage(
+            onTapped: _handleProjectTapped,
           ),
         ),
-      );
-    });
+        if (show404)
+          MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen())
+        else if (_selectedProject != null)
+          ProjectDetailsPage(project: _selectedProject)
+        else if (name != null)
+          ProjectDetailsPage(name: name)
+      ],
+      onPopPage: (route, result) {
+        if (!route.didPop(result)) {
+          return false;
+        }
+
+        // Update the list of pages by setting _selectedBook to null
+        _selectedProject = null;
+        name = null;
+        show404 = false;
+        notifyListeners();
+
+        return true;
+      },
+    );
   }
+
+  @override
+  Future<void> setNewRoutePath(ProjectRoutePath path) async {
+    if (path.isUnknown) {
+      _selectedProject = null;
+      show404 = true;
+      return;
+    }
+
+    if (path.isDetailsPage) {
+      name = path.name;
+      if (_selectedProject == null && name == null) {
+        show404 = true;
+        return;
+      }
+    } else {
+      _selectedProject = null;
+    }
+
+    show404 = false;
+  }
+
+  void _handleProjectTapped(Project project) {
+    _selectedProject = project;
+    notifyListeners();
+  }
+}
+
+class ProjectRoutePath {
+  final String name;
+  final bool isUnknown;
+
+  ProjectRoutePath.home()
+      : name = null,
+        isUnknown = false;
+
+  ProjectRoutePath.details(this.name) : isUnknown = false;
+
+  ProjectRoutePath.unknown()
+      : name = null,
+        isUnknown = true;
+
+  bool get isHomePage => name == null;
+
+  bool get isDetailsPage => name != null;
 }
