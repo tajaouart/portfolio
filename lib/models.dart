@@ -21,7 +21,8 @@ class Project extends ChangeNotifier {
         bigImagePath = json.data()['bigImagePath'] ?? "",
         logo = json.data()['logo'] ?? "",
         description = json.data()['description'] ?? "",
-        color = json.data()['color'] ?? "";
+        color = json.data()['color'] ?? "",
+        screens = (json.data()['screens'] ?? []).cast<String>();
 }
 
 class ProjectService {
