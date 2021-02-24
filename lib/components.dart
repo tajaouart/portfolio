@@ -79,3 +79,48 @@ class ProjectWidget extends StatelessWidget {
     );
   }
 }
+
+class CustomTextField extends StatelessWidget {
+  TextEditingController myController;
+  String label;
+  UniqueKey key;
+  int maxLines;
+  bool isOK;
+
+  CustomTextField({
+    this.maxLines,
+    @required this.label,
+    @required this.key,
+    @required this.myController,
+    @required this.isOK,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: key,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: TextField(
+          controller: myController,
+          maxLines: maxLines,
+          style: TextStyle(
+            color: Color(0xFF707070),
+          ),
+          decoration: InputDecoration(
+            alignLabelWithHint: true,
+            filled: true,
+            labelStyle: TextStyle(color: Color.fromARGB(255, 182, 42, 222)),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                  color: isOK ? Color.fromARGB(255, 182, 42, 222) : Colors.red),
+            ),
+            fillColor: Colors.transparent,
+            border: OutlineInputBorder(),
+            labelText: label,
+          ),
+        ),
+      ),
+    );
+  }
+}

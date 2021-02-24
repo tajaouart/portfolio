@@ -37,6 +37,7 @@ class ProjectDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<ProjectViewModel>(context);
+    bool isMobile = MediaQuery.of(context).size.width <= 414;
     Project _project = project != null
         ? project
         : (viewModel.projects != null && viewModel.projects.length > 0)
@@ -78,20 +79,20 @@ class ProjectDetailsScreen extends StatelessWidget {
               SizedBox(
                 height: 22,
               ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(99),
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  child: Center(
-                    child: _project != null
-                        ? Hero(
-                            tag: "logo",
-                            child: Image.network(
+              Hero(
+                tag: "project_logo",
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(99),
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    child: Center(
+                      child: _project != null
+                          ? Image.network(
                               _project.logo.toString(),
-                            ),
-                          )
-                        : CircularProgressIndicator(),
+                            )
+                          : CircularProgressIndicator(),
+                    ),
                   ),
                 ),
               ),
@@ -114,99 +115,120 @@ class ProjectDetailsScreen extends StatelessWidget {
               SizedBox(
                 height: 24,
               ),
-              Hero(
-                tag: "expand",
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 36.0),
-                  child: Material(
-                      color: Colors.transparent,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: IconButton(
-                              icon: Image.asset('expand.png'),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ExpandedCarouselPage(_project)),
-                                );
-                              }),
-                        ),
-                      )),
+              !isMobile
+                  ? Center()
+                  : Hero(
+                      tag: "expand",
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 36.0),
+                        child: Material(
+                            color: Colors.transparent,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: IconButton(
+                                    icon: Image.asset('expand.png'),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ExpandedCarouselPage(_project)),
+                                      );
+                                    }),
+                              ),
+                            )),
+                      ),
+                    ),
+              Container(
+                width: 414,
+                decoration: BoxDecoration(
+                  color: (_project != null && _project.color != null)
+                      ? Color(int.parse("0xFF${_project.color}")).withAlpha(180)
+                      : Colors.black,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black,
+                      spreadRadius: 8,
+                      blurRadius: 50,
+                    ),
+                  ],
                 ),
-              ),
-              Hero(
-                tag: "carousel",
-                child: CarouselSlider(
-                  options: CarouselOptions(
-                    height: 600.0,
-                    aspectRatio: 0.8,
-                    enlargeCenterPage: true,
-                    enableInfiniteScroll: false,
-                  ),
-                  items: ((_project != null && _project.screens != null)
-                          ? _project.screens
-                          : [])
-                      .map((item) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return Container(
-                            width: MediaQuery.of(context).size.width,
-                            margin: EdgeInsets.symmetric(horizontal: 5.0),
-                            child: Stack(
-                              children: [
-                                Positioned.fill(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10),
-                                        topRight: Radius.circular(10)),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(18))),
-                                      child: Image.network(
-                                        _project.screens[
-                                                _project.screens.indexOf(item)]
-                                            .toString(),
-                                        fit: BoxFit.cover,
-                                        alignment: Alignment.topCenter,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 0.0,
-                                  left: 0.0,
-                                  right: 0.0,
-                                  child: Container(
-                                    color: (_project != null &&
-                                            _project.color != null)
-                                        ? Color(int.parse(
-                                                "0xFF${_project.color}"))
-                                            .withAlpha(150)
-                                        : Colors.black,
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 10.0, horizontal: 20.0),
-                                    child: Center(
-                                      child: Text(
-                                        '${_project.screens.indexOf(item) + 1}/${_project.screens.length}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 20.0,
-                                          fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                  child: Hero(
+                    tag: "carousel",
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                        height: 600.0,
+                        aspectRatio: 0.8,
+                        enlargeCenterPage: true,
+                        enableInfiniteScroll: false,
+                      ),
+                      items: ((_project != null && _project.screens != null)
+                              ? _project.screens
+                              : [])
+                          .map((item) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Container(
+                                width: MediaQuery.of(context).size.width,
+                                margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                child: Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10),
+                                            topRight: Radius.circular(10)),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(18))),
+                                          child: Image.network(
+                                            _project.screens[_project.screens
+                                                    .indexOf(item)]
+                                                .toString(),
+                                            fit: BoxFit.cover,
+                                            alignment: Alignment.topCenter,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                              ],
-                            ));
-                      },
-                    );
-                  }).toList(),
+                                    Positioned(
+                                      bottom: 0.0,
+                                      left: 0.0,
+                                      right: 0.0,
+                                      child: Container(
+                                        color: (_project != null &&
+                                                _project.color != null)
+                                            ? Color(int.parse(
+                                                    "0xFF${_project.color}"))
+                                                .withAlpha(150)
+                                            : Colors.black,
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 10.0, horizontal: 20.0),
+                                        child: Center(
+                                          child: Text(
+                                            '${_project.screens.indexOf(item) + 1}/${_project.screens.length}',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ));
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ),
               )
             ],
@@ -250,12 +272,15 @@ class _ExpandedCarouselPageState extends State<ExpandedCarouselPage> {
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
         actions: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(99),
-            child: Center(
-              child:Image.network(
-                      widget.project.logo.toString(),
-                    ),
+          Hero(
+            tag: "project_logo",
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: Center(
+                child: Image.network(
+                  widget.project.logo.toString(),
+                ),
+              ),
             ),
           ),
         ],

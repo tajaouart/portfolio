@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:portfolio/contact.dart';
 import 'package:provider/provider.dart';
 
 import '404.dart';
@@ -33,7 +35,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   final List<Project> projects;
-  final ValueChanged<Project> onTapped;
+  final ValueChanged<Object> onTapped;
 
   MyHomePage({
     @required this.projects,
@@ -45,6 +47,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool get isMobile => MediaQuery.of(context).size.width <= 414;
+
   @override
   void initState() {
     super.initState();
@@ -72,19 +76,99 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               children: [
                 SizedBox(
-                  height: 50,
+                  height: 24,
                 ),
-                Text(
-                  "TAJAOURT Mounir",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "Développeur mobile",
-                  style: TextStyle(
-                      color: Color.fromARGB(255, 182, 42, 222), fontSize: 17),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          runSpacing: 24,
+                          children: [
+                            Container(
+                              child: Hero(
+                                tag: "logo",
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: Wrap(
+                                    alignment: isMobile
+                                        ? WrapAlignment.center
+                                        : WrapAlignment.start,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Container(
+                                        width: isMobile ? 200 : null,
+                                        child: Text(
+                                          "TAJAOUART Mounir",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      isMobile
+                                          ? Center()
+                                          : Container(
+                                              height: 24,
+                                              width: 3,
+                                              color: Colors.white,
+                                            ),
+                                      Container(
+                                        width: 200,
+                                        child: Row(
+                                          children: [
+                                            isMobile
+                                                ? Container(
+                                                    height: 24,
+                                                    width: 3,
+                                                    color: Colors.white,
+                                                  )
+                                                : SizedBox(),
+                                            Text(
+                                              "Développeur mobile",
+                                              textAlign: TextAlign.end,
+                                              style: TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 182, 42, 222),
+                                                  fontSize: 17),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  SizedBox(
+                                    width: 48,
+                                  ),
+                                  TextButton(
+                                      onPressed: () {
+                                        widget.onTapped("contact");
+                                      },
+                                      child: Text(
+                                        "Contact",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 20),
+                                      )),
+                                  SizedBox(
+                                    width: 48,
+                                  )
+                                ],
+                              ),
+                            )
+                          ]),
+                    ),
+                  ),
                 ),
                 SizedBox(
                   height: 48,
@@ -96,20 +180,21 @@ class _MyHomePageState extends State<MyHomePage> {
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 50),
                 viewModel.projects != null && viewModel.projects.length > 0
-                    ? Column(
-                        children: [
-                          for (var project in viewModel.projects)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 16.0, top: 16),
-                              child: InkWell(
+                    ? Padding(
+                        padding: EdgeInsets.all(isMobile ? 8 : 24.0),
+                        child: Wrap(
+                          spacing: 100,
+                          runSpacing: 100,
+                          children: [
+                            for (var project in viewModel.projects)
+                              InkWell(
                                 onTap: () => widget.onTapped(project),
                                 child: ProjectWidget(project),
-                              ),
-                            )
-                        ],
+                              )
+                          ],
+                        ),
                       )
                     : Center(
                         child: CircularProgressIndicator(),
@@ -132,6 +217,12 @@ class ProjectRouteInformationParser
       return ProjectRoutePath.home();
     }
 
+    // Handle '/contact'
+    if (uri.pathSegments.length == 1) {
+      if (uri.pathSegments[0] != 'contact') return ProjectRoutePath.unknown();
+      return ProjectRoutePath.contact("contact");
+    }
+
     // Handle '/project/:name'
     if (uri.pathSegments.length == 2) {
       if (uri.pathSegments[0] != 'project') return ProjectRoutePath.unknown();
@@ -152,6 +243,9 @@ class ProjectRouteInformationParser
     }
     if (path.isHomePage) {
       return RouteInformation(location: '/');
+    }
+    if (path.isContactPage) {
+      return RouteInformation(location: '/contact');
     }
     if (path.isDetailsPage) {
       return RouteInformation(location: '/project/${path.name}');
@@ -177,8 +271,10 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
     }
     return (_selectedProject == null && name == null)
         ? ProjectRoutePath.home()
-        : ProjectRoutePath.details(
-            _selectedProject == null ? name : _selectedProject.name);
+        : name == 'contact'
+            ? ProjectRoutePath.contact("contact")
+            : ProjectRoutePath.details(
+                _selectedProject == null ? name : _selectedProject.name);
   }
 
   @override
@@ -190,11 +286,13 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
         MaterialPage(
           key: ValueKey('ProjectsListPage'),
           child: MyHomePage(
-            onTapped: _handleProjectTapped,
+            onTapped: _handlePushRoute,
           ),
         ),
         if (show404)
           MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen())
+        else if (name == 'contact')
+          MaterialPage(key: ValueKey('UnknownPage'), child: ContactScreen())
         else if (_selectedProject != null)
           ProjectDetailsPage(project: _selectedProject)
         else if (name != null)
@@ -205,7 +303,7 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
           return false;
         }
 
-        // Update the list of pages by setting _selectedBook to null
+        // Update the main by setting resting values
         _selectedProject = null;
         name = null;
         show404 = false;
@@ -221,6 +319,7 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
     if (path.isUnknown) {
       _selectedProject = null;
       show404 = true;
+      name = null;
       return;
     }
 
@@ -230,6 +329,10 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
         show404 = true;
         return;
       }
+    } else if (path.isContactPage) {
+      name = "contact";
+      _selectedProject = null;
+      show404 = false;
     } else {
       _selectedProject = null;
     }
@@ -237,8 +340,13 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
     show404 = false;
   }
 
-  void _handleProjectTapped(Project project) {
-    _selectedProject = project;
+  void _handlePushRoute(object) {
+    if (object is Project) {
+      _selectedProject = object;
+    } else if (object.toString() == "contact") {
+      _selectedProject = null;
+      name = "contact";
+    }
     notifyListeners();
   }
 }
@@ -253,11 +361,15 @@ class ProjectRoutePath {
 
   ProjectRoutePath.details(this.name) : isUnknown = false;
 
+  ProjectRoutePath.contact(this.name) : isUnknown = false;
+
   ProjectRoutePath.unknown()
       : name = null,
         isUnknown = true;
 
   bool get isHomePage => name == null;
 
-  bool get isDetailsPage => name != null;
+  bool get isContactPage => name == 'contact';
+
+  bool get isDetailsPage => (name != null && name != 'contact');
 }
