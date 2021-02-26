@@ -6,6 +6,7 @@ import 'package:portfolio/contact.dart';
 import 'package:provider/provider.dart';
 
 import '404.dart';
+import 'cgu.dart';
 import 'components.dart';
 import 'detail_project.dart';
 import 'models.dart';
@@ -152,15 +153,32 @@ class _MyHomePageState extends State<MyHomePage> {
                                   SizedBox(
                                     width: 48,
                                   ),
-                                  TextButton(
-                                      onPressed: () {
-                                        widget.onTapped("contact");
-                                      },
-                                      child: Text(
-                                        "Contact",
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 20),
-                                      )),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: TextButton(
+                                        onPressed: () {
+                                          widget.onTapped("contact");
+                                        },
+                                        child: Text(
+                                          "Contact",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20),
+                                        )),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: TextButton(
+                                        onPressed: () {
+                                          widget.onTapped("CGU");
+                                        },
+                                        child: Text(
+                                          "CGU",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20),
+                                        )),
+                                  ),
                                   SizedBox(
                                     width: 48,
                                   )
@@ -298,10 +316,14 @@ class ProjectRouteInformationParser
       return ProjectRoutePath.home();
     }
 
-    // Handle '/contact'
     if (uri.pathSegments.length == 1) {
-      if (uri.pathSegments[0] != 'contact') return ProjectRoutePath.unknown();
-      return ProjectRoutePath.contact("contact");
+      // Handle '/contact'
+      if (uri.pathSegments[0] == 'contact')
+        return ProjectRoutePath.contact("contact");
+
+      // Handle '/CGU'
+      if (uri.pathSegments[0] != 'CGU') return ProjectRoutePath.unknown();
+      return ProjectRoutePath.cgu("CGU");
     }
 
     // Handle '/project/:name'
@@ -327,6 +349,9 @@ class ProjectRouteInformationParser
     }
     if (path.isContactPage) {
       return RouteInformation(location: '/contact');
+    }
+    if (path.isCGUPage) {
+      return RouteInformation(location: '/CGU');
     }
     if (path.isDetailsPage) {
       return RouteInformation(location: '/project/${path.name}');
@@ -354,8 +379,10 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
         ? ProjectRoutePath.home()
         : name == 'contact'
             ? ProjectRoutePath.contact("contact")
-            : ProjectRoutePath.details(
-                _selectedProject == null ? name : _selectedProject.name);
+            : name == 'CGU'
+                ? ProjectRoutePath.cgu("CGU")
+                : ProjectRoutePath.details(
+                    _selectedProject == null ? name : _selectedProject.name);
   }
 
   @override
@@ -373,7 +400,9 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
         if (show404)
           MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen())
         else if (name == 'contact')
-          MaterialPage(key: ValueKey('UnknownPage'), child: ContactScreen())
+          MaterialPage(key: ValueKey('contact'), child: ContactScreen())
+        else if (name == 'CGU')
+          MaterialPage(key: ValueKey('CGU'), child: CGUScreen())
         else if (_selectedProject != null)
           ProjectDetailsPage(project: _selectedProject)
         else if (name != null)
@@ -414,6 +443,10 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
       name = "contact";
       _selectedProject = null;
       show404 = false;
+    } else if (path.isCGUPage) {
+      name = "CGU";
+      _selectedProject = null;
+      show404 = false;
     } else {
       _selectedProject = null;
     }
@@ -427,6 +460,9 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
     } else if (object.toString() == "contact") {
       _selectedProject = null;
       name = "contact";
+    } else if (object.toString() == "CGU") {
+      _selectedProject = null;
+      name = "CGU";
     }
     notifyListeners();
   }
@@ -444,6 +480,8 @@ class ProjectRoutePath {
 
   ProjectRoutePath.contact(this.name) : isUnknown = false;
 
+  ProjectRoutePath.cgu(this.name) : isUnknown = false;
+
   ProjectRoutePath.unknown()
       : name = null,
         isUnknown = true;
@@ -452,5 +490,8 @@ class ProjectRoutePath {
 
   bool get isContactPage => name == 'contact';
 
-  bool get isDetailsPage => (name != null && name != 'contact');
+  bool get isCGUPage => name == 'CGU';
+
+  bool get isDetailsPage =>
+      (name != null && name != 'contact' && name != 'CGU');
 }
