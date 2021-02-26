@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:portfolio/contact.dart';
 import 'package:provider/provider.dart';
 
@@ -173,6 +174,78 @@ class _MyHomePageState extends State<MyHomePage> {
                 SizedBox(
                   height: 48,
                 ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: Wrap(
+                    runSpacing: 16,
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                        child: Container(
+                            height: 200,
+                            width: 200,
+                            child: Image.asset(
+                              "profile_photo.jpg",
+                              fit: BoxFit.fitWidth,
+                            )),
+                      ),
+                      Container(
+                        constraints: BoxConstraints(maxWidth: 500),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.cyan,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(4))),
+                                width: 5,
+                                height: 200,
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(
+                                constraints: BoxConstraints(maxWidth: 300),
+                                child: new RichText(
+                                  text: TextSpan(
+                                    style: GoogleFonts.openSansCondensed(
+                                      height: 1.5,
+                                      color: Colors.white,
+                                      fontSize: 23,
+                                    ),
+                                    text: "",
+                                    children: <TextSpan>[
+                                      TextSpan(text: "Je suis "),
+                                      TextSpan(
+                                          text: "développeur mobile ",
+                                          style: GoogleFonts.openSansCondensed(
+                                              fontWeight: FontWeight.bold)),
+                                      hilightedText("Android/iOS"),
+                                      TextSpan(
+                                          text:
+                                              "; j'ai participé au développement de plusieurs applications natives durant mon alternance en utilisant Android Studio pour Android et XCode pour iOS. Je me suis orienté aussi vers le Cross-Platforme avec le FrameWork"),
+                                      hilightedText(" Flutter "),
+                                      TextSpan(
+                                          text:
+                                              "qui permet de créer des applications natives Android et IOS et même pour le Web. ")
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 100,
+                ),
                 Text(
                   "Les projects",
                   style: TextStyle(
@@ -204,6 +277,14 @@ class _MyHomePageState extends State<MyHomePage> {
           )),
     );
   }
+}
+
+TextSpan hilightedText(txt) {
+  return TextSpan(
+      text: txt,
+      style: GoogleFonts.openSansCondensed(
+          color: Color.fromARGB(255, 182, 42, 222),
+          fontWeight: FontWeight.bold));
 }
 
 class ProjectRouteInformationParser
