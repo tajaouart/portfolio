@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'models.dart';
 
@@ -253,12 +255,54 @@ class ProjectDetailsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              )
+              ),
+              SizedBox(
+                height: 100,
+              ),
+              (_project == null ||
+                      _project.googlePlayLink == null ||
+                      _project.googlePlayLink.isEmpty)
+                  ? Center()
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Divider(),
+                        SizedBox(
+                          height: 32,
+                        ),
+                        Text(
+                          "Voir sur le store",
+                          style: GoogleFonts.titilliumWeb(
+                              color: Colors.white, fontSize: 20),
+                        ),
+                        SizedBox(
+                          height: 32,
+                        ),
+                        InkWell(
+                          onTap: () => _launchURL(_project.googlePlayLink),
+                          child: Image.asset(
+                            "google_play.png",
+                            height: 64,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 32,
+                        ),
+                      ],
+                    )
             ],
           ),
         ),
       ),
     );
+  }
+
+  _launchURL(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }
 

@@ -10,6 +10,7 @@ class Project extends ChangeNotifier {
   String color;
   List<String> screens;
   List<String> tools;
+  String googlePlayLink;
 
   static List<Project> fromJsonList(List<QueryDocumentSnapshot> jsonArray) {
     return List.generate(
@@ -24,7 +25,8 @@ class Project extends ChangeNotifier {
         description = json.data()['description'] ?? "",
         color = json.data()['color'] ?? "",
         screens = (json.data()['screens'] ?? []).cast<String>(),
-        tools = (json.data()['tools'] ?? []).cast<String>();
+        tools = (json.data()['tools'] ?? []).cast<String>(),
+        googlePlayLink = json.data()['googlePlayLink'] ?? "";
 }
 
 class ProjectService {
