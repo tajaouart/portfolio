@@ -283,6 +283,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     runSpacing: 16,
                     children: [
                       Container(
+                        width: null,
+                        height: 100,
+                        child: Image.asset("flutter.png", fit: BoxFit.contain),
+                      ),
+                      Container(
                           width: null,
                           height: 100,
                           child:
