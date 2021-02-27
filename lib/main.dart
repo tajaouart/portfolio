@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:portfolio/contact.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '404.dart';
 import 'cgu.dart';
@@ -338,11 +339,52 @@ class _MyHomePageState extends State<MyHomePage> {
                       )
                     : Center(
                         child: CircularProgressIndicator(),
-                      )
+                      ),
+                SizedBox(
+                  height: 100,
+                ),
+                Text(
+                  "Trouvez-moi sur",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 50),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InkWell(
+                          onTap: () => _launchURL(
+                              "https://www.linkedin.com/in/tajaouart"),
+                          child: Container(
+                              width: 50, child: Image.asset('linkedin.png'))),
+                      SizedBox(
+                        width: 32,
+                      ),
+                      InkWell(
+                          onTap: () => _launchURL(
+                              "https://www.malt.fr/profile/mounirtajaouart"),
+                          child: Container(
+                              width: 50, child: Image.asset('malt.png')))
+                    ],
+                  ),
+                ),
+                SizedBox(height: 100),
               ],
             ),
           )),
     );
+  }
+
+  _launchURL(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }
 
