@@ -108,6 +108,29 @@ class ProjectDetailsScreen extends StatelessWidget {
                   style: TextStyle(color: Colors.white),
                 ),
               ),
+              (_project == null ||
+                      _project.tools == null ||
+                      _project.tools.isEmpty)
+                  ? Center()
+                  : Column(
+                      children: [
+                        SizedBox(height: 50),
+                        Text(
+                          'Les outils utilisés',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                        SizedBox(height: 50),
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: [
+                            for (var tool in _project.tools)
+                              Chip(label: Text(tool))
+                          ],
+                        ),
+                      ],
+                    ),
+              SizedBox(height: 50),
               Text(
                 'Screens',
                 style: TextStyle(color: Colors.white, fontSize: 20),

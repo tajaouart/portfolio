@@ -373,6 +373,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 SizedBox(height: 100),
+                Center(
+                    child: Text(
+                  "© All Rights Reserved",
+                  style: TextStyle(color: Colors.white),
+                )),
+                SizedBox(height: 16),
               ],
             ),
           )),

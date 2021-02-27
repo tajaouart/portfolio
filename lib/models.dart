@@ -9,6 +9,7 @@ class Project extends ChangeNotifier {
   String description;
   String color;
   List<String> screens;
+  List<String> tools;
 
   static List<Project> fromJsonList(List<QueryDocumentSnapshot> jsonArray) {
     return List.generate(
@@ -22,7 +23,8 @@ class Project extends ChangeNotifier {
         logo = json.data()['logo'] ?? "",
         description = json.data()['description'] ?? "",
         color = json.data()['color'] ?? "",
-        screens = (json.data()['screens'] ?? []).cast<String>();
+        screens = (json.data()['screens'] ?? []).cast<String>(),
+        tools = (json.data()['tools'] ?? []).cast<String>();
 }
 
 class ProjectService {
