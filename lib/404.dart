@@ -23,7 +23,7 @@ class UnknownScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(32.0),
               child: SvgPicture.asset("page_not_found.svg",
-                  semanticsLabel: 'Acme Logo'),
+                  semanticsLabel: 'Page not found'),
             ),
           ),
         ));

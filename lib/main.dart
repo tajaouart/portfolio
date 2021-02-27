@@ -210,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             )),
                       ),
                       Container(
-                        constraints: BoxConstraints(maxWidth: 500),
+                        constraints: BoxConstraints(maxWidth: 600),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -227,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                             Expanded(
                               child: Container(
-                                constraints: BoxConstraints(maxWidth: 300),
+                                constraints: BoxConstraints(maxWidth: 450),
                                 child: new RichText(
                                   text: TextSpan(
                                     style: GoogleFonts.openSansCondensed(
@@ -258,6 +258,55 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         ),
                       )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 100,
+                ),
+                Text(
+                  "Les outils",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 50),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Wrap(
+                    runAlignment: WrapAlignment.center,
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: [
+                      Container(
+                          width: null,
+                          height: 100,
+                          child:
+                              Image.asset("android.png", fit: BoxFit.contain)),
+                      Container(
+                          width: null,
+                          height: 100,
+                          child: Image.asset("xcode.png", fit: BoxFit.contain)),
+                      Container(
+                          width: null,
+                          height: 100,
+                          child: Image.asset(
+                            "adobexd.png",
+                            fit: BoxFit.contain,
+                          )),
+                      Container(
+                          width: null,
+                          height: 100,
+                          child:
+                              Image.asset("firebase.png", fit: BoxFit.contain)),
+                      Container(
+                        width: null,
+                        height: 100,
+                        child: Image.asset("django.png", fit: BoxFit.contain),
+                      ),
                     ],
                   ),
                 ),

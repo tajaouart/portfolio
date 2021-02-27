@@ -110,7 +110,7 @@ class _CGUScreenState extends State<CGUScreen> with TickerProviderStateMixin {
 
 var _style = {
   // text that renders h1 elements will be red
-  "*": Style(color: Colors.brown),
+  "*": Style(color: Colors.white70),
 };
 
 String _privacy = """
