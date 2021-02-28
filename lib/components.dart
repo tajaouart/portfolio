@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'models.dart';
 
@@ -54,27 +57,53 @@ class ProjectWidget extends StatelessWidget {
             fit: BoxFit.cover,
           ),
           borderRadius: BorderRadius.all(Radius.circular(4))),
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          decoration: new BoxDecoration(
-              gradient: new LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(int.parse("0xFF${project.color}")).withAlpha(122),
-              Colors.black,
-            ],
-          )),
-          height: 50,
-          width: 266,
-          child: Center(
-            child: Text(
-              project.name,
-              style: TextStyle(color: Colors.white, fontSize: 17),
+      child: Stack(
+        children: [
+          project.published
+              ? Center()
+              : Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withAlpha(160),
+                    child: project.published
+                        ? Center()
+                        : Expanded(
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "L'application sera publiée prochainement, restez à jours avec mes postes sur LinkedIn",
+                                  style: GoogleFonts.roboto(
+                                      color: Colors.white, fontSize: 18),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              decoration: new BoxDecoration(
+                  gradient: new LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(int.parse("0xFF${project.color}")).withAlpha(122),
+                  Colors.black,
+                ],
+              )),
+              height: 50,
+              width: 266,
+              child: Center(
+                child: Text(
+                  project.name,
+                  style: TextStyle(color: Colors.white, fontSize: 17),
+                ),
+              ),
             ),
-          ),
-        ),
+          )
+        ],
       ),
     );
   }

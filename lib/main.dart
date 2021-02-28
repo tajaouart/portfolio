@@ -336,7 +336,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           children: [
                             for (var project in viewModel.projects)
                               InkWell(
-                                onTap: () => widget.onTapped(project),
+                                onTap: project.published
+                                    ? () => widget.onTapped(project)
+                                    : null,
                                 child: ProjectWidget(project),
                               )
                           ],

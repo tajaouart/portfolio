@@ -11,6 +11,7 @@ class Project extends ChangeNotifier {
   List<String> screens;
   List<String> tools;
   String googlePlayLink;
+  bool published = false;
 
   static List<Project> fromJsonList(List<QueryDocumentSnapshot> jsonArray) {
     return List.generate(
@@ -26,7 +27,8 @@ class Project extends ChangeNotifier {
         color = json.data()['color'] ?? "",
         screens = (json.data()['screens'] ?? []).cast<String>(),
         tools = (json.data()['tools'] ?? []).cast<String>(),
-        googlePlayLink = json.data()['googlePlayLink'] ?? "";
+        googlePlayLink = json.data()['googlePlayLink'] ?? "",
+        published = json.data()['published'] ?? true;
 }
 
 class ProjectService {
