@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'models.dart';
@@ -51,36 +52,47 @@ class ProjectWidget extends StatelessWidget {
       height: 208,
       width: 266,
       decoration: BoxDecoration(
-          color: Colors.red,
-          image: DecorationImage(
-            image: NetworkImage(project.bigImagePath.toString()),
-            fit: BoxFit.cover,
-          ),
+          color: Colors.grey,
           borderRadius: BorderRadius.all(Radius.circular(4))),
       child: Stack(
         children: [
-          project.published
-              ? Center()
-              : Positioned.fill(
+          Positioned.fill(
+            child:
+                (project.state == "in_progress" || project.bigImagePath.isEmpty)
+                    ? SvgPicture.asset(
+                        "in_progress.svg",
+                      )
+                    : Image.network(
+                        project.bigImagePath.toString(),
+                        fit: BoxFit.cover,
+                      ),
+          ),
+          (project.state == "unpublished")
+              ? Positioned.fill(
                   child: Container(
                     color: Colors.black.withAlpha(160),
-                    child: project.published
+                    child: (project.state == "published")
                         ? Center()
-                        : Expanded(
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  "L'application sera publiée prochainement, restez à jours avec mes postes sur LinkedIn",
-                                  style: GoogleFonts.roboto(
-                                      color: Colors.white, fontSize: 18),
-                                  textAlign: TextAlign.center,
-                                ),
+                        : Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "L'application sera publiée prochainement, restez à jours avec mes postes sur LinkedIn",
+                                style: GoogleFonts.roboto(
+                                    color: Colors.white, fontSize: 18),
+                                textAlign: TextAlign.center,
                               ),
                             ),
                           ),
                   ),
-                ),
+                )
+              : (project.state == "in_progress")
+                  ? Positioned.fill(
+                      child: SvgPicture.asset(
+                      "in_progress.svg",
+                      fit: BoxFit.cover,
+                    ))
+                  : Center(),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -97,7 +109,9 @@ class ProjectWidget extends StatelessWidget {
               width: 266,
               child: Center(
                 child: Text(
-                  project.name,
+                  (project.state == "in_progress")
+                      ? "Projet en cours"
+                      : project.name,
                   style: TextStyle(color: Colors.white, fontSize: 17),
                 ),
               ),

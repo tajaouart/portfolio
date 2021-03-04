@@ -320,7 +320,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 100,
                 ),
                 Text(
-                  "Les projects",
+                  "Les projets",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -336,7 +336,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           children: [
                             for (var project in viewModel.projects)
                               InkWell(
-                                onTap: project.published
+                                onTap: (project.state == "published")
                                     ? () => widget.onTapped(project)
                                     : null,
                                 child: ProjectWidget(project),

@@ -11,7 +11,7 @@ class Project extends ChangeNotifier {
   List<String> screens;
   List<String> tools;
   String googlePlayLink;
-  bool published = false;
+  String state = "unpublished";
 
   static List<Project> fromJsonList(List<QueryDocumentSnapshot> jsonArray) {
     return List.generate(
@@ -24,11 +24,11 @@ class Project extends ChangeNotifier {
         bigImagePath = json.data()['bigImagePath'] ?? "",
         logo = json.data()['logo'] ?? "",
         description = json.data()['description'] ?? "",
-        color = json.data()['color'] ?? "",
+        color = json.data()['color'] ?? "B62ADE",
         screens = (json.data()['screens'] ?? []).cast<String>(),
         tools = (json.data()['tools'] ?? []).cast<String>(),
         googlePlayLink = json.data()['googlePlayLink'] ?? "",
-        published = json.data()['published'] ?? true;
+        state = json.data()['state'] ?? "unpublished";
 }
 
 class ProjectService {
