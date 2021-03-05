@@ -52,7 +52,7 @@ class ProjectWidget extends StatelessWidget {
       height: 208,
       width: 266,
       decoration: BoxDecoration(
-          color: Colors.grey,
+          color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(4))),
       child: Stack(
         children: [
@@ -67,32 +67,6 @@ class ProjectWidget extends StatelessWidget {
                         fit: BoxFit.cover,
                       ),
           ),
-          (project.state == "unpublished")
-              ? Positioned.fill(
-                  child: Container(
-                    color: Colors.black.withAlpha(160),
-                    child: (project.state == "published")
-                        ? Center()
-                        : Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "L'application sera publiée prochainement, restez à jours avec mes postes sur LinkedIn",
-                                style: GoogleFonts.roboto(
-                                    color: Colors.white, fontSize: 18),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                  ),
-                )
-              : (project.state == "in_progress")
-                  ? Positioned.fill(
-                      child: SvgPicture.asset(
-                      "in_progress.svg",
-                      fit: BoxFit.cover,
-                    ))
-                  : Center(),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -116,7 +90,29 @@ class ProjectWidget extends StatelessWidget {
                 ),
               ),
             ),
-          )
+          ),
+          (project.state == "unpublished")
+              ? Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withAlpha(160),
+                    child: (project.state == "published")
+                        ? Center()
+                        : Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "L'application sera publiée prochainement, restez à jours avec mes postes sur LinkedIn",
+                                style: GoogleFonts.roboto(
+                                    backgroundColor: Colors.black87,
+                                    color: Colors.white,
+                                    fontSize: 18),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                  ),
+                )
+              : Center()
         ],
       ),
     );
