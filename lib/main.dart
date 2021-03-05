@@ -61,6 +61,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<ProjectViewModel>(context);
+    if (viewModel.projects != null) {
+      viewModel.projects.sort((a, b) => (a.state.compareTo("published") *
+          a.state.compareTo("unpublished") *
+          a.state.compareTo(b.state)));
+      viewModel.projects = viewModel.projects.reversed.toList();
+    }
 
     return Scaffold(
       body: Container(
@@ -338,7 +344,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               InkWell(
                                 onTap: (project.state == "published")
                                     ? () => widget.onTapped(project)
-                                    : null,
+                                    : () => _launchURL(
+                                        "https://www.linkedin.com/in/tajaouart"),
                                 child: ProjectWidget(project),
                               )
                           ],
