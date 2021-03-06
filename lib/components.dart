@@ -60,7 +60,7 @@ class ProjectWidget extends StatelessWidget {
             child:
                 (project.state == "in_progress" || project.bigImagePath.isEmpty)
                     ? SvgPicture.asset(
-                        "in_progress.svg",
+                        "assets/in_progress.svg",
                       )
                     : Image.network(
                         project.bigImagePath.toString(),

@@ -153,7 +153,7 @@ class ProjectDetailsScreen extends StatelessWidget {
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: IconButton(
-                                    icon: Image.asset('expand.png'),
+                                    icon: Image.asset('assets/expand.png'),
                                     onPressed: () {
                                       Navigator.push(
                                         context,
@@ -281,7 +281,7 @@ class ProjectDetailsScreen extends StatelessWidget {
                         InkWell(
                           onTap: () => _launchURL(_project.googlePlayLink),
                           child: Image.asset(
-                            "google_play.png",
+                            "assets/google_play.png",
                             height: 64,
                           ),
                         ),
@@ -327,7 +327,7 @@ class _ExpandedCarouselPageState extends State<ExpandedCarouselPage> {
           child: Material(
             color: Colors.transparent,
             child: IconButton(
-              icon: Image.asset('collapse.png'),
+              icon: Image.asset('assets/collapse.png'),
               onPressed: () {
                 Navigator.of(context).pop();
               },

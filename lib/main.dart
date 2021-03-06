@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: 'Projects App',
       routerDelegate: _routerDelegate,
       routeInformationParser: _routeInformationParser,
@@ -212,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             height: 200,
                             width: 200,
                             child: Image.asset(
-                              "profile_photo.jpg",
+                              "assets/profile_photo.jpg",
                               fit: BoxFit.fitWidth,
                             )),
                       ),
@@ -291,33 +292,36 @@ class _MyHomePageState extends State<MyHomePage> {
                       Container(
                         width: null,
                         height: 100,
-                        child: Image.asset("flutter.png", fit: BoxFit.contain),
+                        child: Image.asset("assets/flutter.png",
+                            fit: BoxFit.contain),
                       ),
                       Container(
                           width: null,
                           height: 100,
-                          child:
-                              Image.asset("android.png", fit: BoxFit.contain)),
+                          child: Image.asset("assets/android.png",
+                              fit: BoxFit.contain)),
                       Container(
                           width: null,
                           height: 100,
-                          child: Image.asset("xcode.png", fit: BoxFit.contain)),
+                          child: Image.asset("assets/xcode.png",
+                              fit: BoxFit.contain)),
                       Container(
                           width: null,
                           height: 100,
                           child: Image.asset(
-                            "adobexd.png",
+                            "assets/adobexd.png",
                             fit: BoxFit.contain,
                           )),
                       Container(
                           width: null,
                           height: 100,
-                          child:
-                              Image.asset("firebase.png", fit: BoxFit.contain)),
+                          child: Image.asset("assets/firebase.png",
+                              fit: BoxFit.contain)),
                       Container(
                         width: null,
                         height: 100,
-                        child: Image.asset("django.png", fit: BoxFit.contain),
+                        child: Image.asset("assets/django.png",
+                            fit: BoxFit.contain),
                       ),
                     ],
                   ),
@@ -374,7 +378,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           onTap: () => _launchURL(
                               "https://www.linkedin.com/in/tajaouart"),
                           child: Container(
-                              width: 50, child: Image.asset('linkedin.png'))),
+                              width: 50,
+                              child: Image.asset('assets/linkedin.png'))),
                       SizedBox(
                         width: 32,
                       ),
@@ -382,7 +387,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           onTap: () => _launchURL(
                               "https://www.malt.fr/profile/mounirtajaouart"),
                           child: Container(
-                              width: 50, child: Image.asset('malt.png')))
+                              width: 50, child: Image.asset('assets/malt.png')))
                     ],
                   ),
                 ),
