@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart' as service;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:portfolio/contact.dart';
 import 'package:provider/provider.dart';
+import 'package:rive/rive.dart' as rive;
 import 'package:url_launcher/url_launcher.dart';
 
 import '404.dart';
@@ -50,13 +52,45 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   bool get isMobile => MediaQuery.of(context).size.width <= 414;
+  rive.Artboard _riveArtboard;
+  rive.RiveAnimationController _controller;
+  var _containerWidth = 0.0;
+  var _containerColor = Colors.black87;
+  var reverse = false;
 
   @override
   void initState() {
     super.initState();
     Provider.of<ProjectViewModel>(context, listen: false).fetchProjects();
+
+    service.rootBundle.load('flame_and_spark.riv').then(
+      (data) async {
+        final file = rive.RiveFile();
+
+        // Load the RiveFile from the binary data.
+        if (file.import(data)) {
+          // The artboard is the root of the animation and gets drawn in the
+          // Rive widget.
+          final artboard = file.mainArtboard;
+          // Add a controller to play back a known animation on the main/default
+          // artboard.We store a reference to it so we can toggle playback.
+          artboard
+              .addController(_controller = rive.SimpleAnimation('Untitled 1'));
+          setState(() {
+            _riveArtboard = artboard;
+          });
+        }
+      },
+    );
+    Future.delayed(Duration(seconds: 2)).then((value) {
+      setState(() {
+        _containerWidth = MediaQuery.of(context).size.width;
+        _containerColor = Colors.black87;
+      });
+    });
   }
 
   @override
@@ -391,6 +425,43 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
+                SizedBox(height: 100),
+                (_riveArtboard == null)
+                    ? const SizedBox()
+                    : Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 300,
+                        child: FittedBox(
+                          alignment: Alignment.centerLeft,
+                          child: Wrap(
+                            alignment: WrapAlignment.start,
+                            children: [
+                              AnimatedContainer(
+                                  onEnd: () {
+                                    setState(() {
+                                      _containerWidth = _containerWidth == 0
+                                          ? MediaQuery.of(context).size.width
+                                          : 0;
+                                      reverse = !reverse;
+                                    });
+                                  },
+                                  width: _containerWidth,
+                                  curve: Curves.slowMiddle,
+                                  duration: Duration(seconds: 5)),
+                              Transform(
+                                transform: reverse
+                                    ? Matrix4.rotationY(3.14)
+                                    : Matrix4.rotationY(0),
+                                alignment: Alignment.center,
+                                child: Container(
+                                    width: 300,
+                                    height: 300,
+                                    child: rive.Rive(artboard: _riveArtboard)),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
                 SizedBox(height: 100),
                 Center(
                     child: Text(
