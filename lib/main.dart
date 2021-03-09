@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '404.dart';
 import 'cgu.dart';
 import 'components.dart';
+import 'cv.dart';
 import 'detail_project.dart';
 import 'models.dart';
 
@@ -216,6 +217,19 @@ class _MyHomePageState extends State<MyHomePage>
                                         },
                                         child: Text(
                                           "CGU",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20),
+                                        )),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: TextButton(
+                                        onPressed: () {
+                                          widget.onTapped("CV");
+                                        },
+                                        child: Text(
+                                          "CV",
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 20),
@@ -509,8 +523,11 @@ class ProjectRouteInformationParser
         return ProjectRoutePath.contact("contact");
 
       // Handle '/CGU'
-      if (uri.pathSegments[0] != 'CGU') return ProjectRoutePath.unknown();
-      return ProjectRoutePath.cgu("CGU");
+      if (uri.pathSegments[0] == 'CGU') return ProjectRoutePath.cgu("CGU");
+
+      // Handle '/CV'
+      if (uri.pathSegments[0] != 'CV') return ProjectRoutePath.unknown();
+      return ProjectRoutePath.cv("CV");
     }
 
     // Handle '/project/:name'
@@ -540,6 +557,9 @@ class ProjectRouteInformationParser
     if (path.isCGUPage) {
       return RouteInformation(location: '/CGU');
     }
+    if (path.isCVPage) {
+      return RouteInformation(location: '/CV');
+    }
     if (path.isDetailsPage) {
       return RouteInformation(location: '/project/${path.name}');
     }
@@ -568,8 +588,11 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
             ? ProjectRoutePath.contact("contact")
             : name == 'CGU'
                 ? ProjectRoutePath.cgu("CGU")
-                : ProjectRoutePath.details(
-                    _selectedProject == null ? name : _selectedProject.name);
+                : name == 'CV'
+                    ? ProjectRoutePath.cv("CV")
+                    : ProjectRoutePath.details(_selectedProject == null
+                        ? name
+                        : _selectedProject.name);
   }
 
   @override
@@ -590,6 +613,8 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
           MaterialPage(key: ValueKey('contact'), child: ContactScreen())
         else if (name == 'CGU')
           MaterialPage(key: ValueKey('CGU'), child: CGUScreen())
+        else if (name == 'CV')
+          MaterialPage(key: ValueKey('CV'), child: CVScreen())
         else if (_selectedProject != null)
           ProjectDetailsPage(project: _selectedProject)
         else if (name != null)
@@ -634,6 +659,10 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
       name = "CGU";
       _selectedProject = null;
       show404 = false;
+    } else if (path.isCVPage) {
+      name = "CV";
+      _selectedProject = null;
+      show404 = false;
     } else {
       _selectedProject = null;
     }
@@ -650,6 +679,9 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
     } else if (object.toString() == "CGU") {
       _selectedProject = null;
       name = "CGU";
+    } else if (object.toString() == "CV") {
+      _selectedProject = null;
+      name = "CV";
     }
     notifyListeners();
   }
@@ -669,6 +701,8 @@ class ProjectRoutePath {
 
   ProjectRoutePath.cgu(this.name) : isUnknown = false;
 
+  ProjectRoutePath.cv(this.name) : isUnknown = false;
+
   ProjectRoutePath.unknown()
       : name = null,
         isUnknown = true;
@@ -679,6 +713,8 @@ class ProjectRoutePath {
 
   bool get isCGUPage => name == 'CGU';
 
+  bool get isCVPage => name == 'CV';
+
   bool get isDetailsPage =>
-      (name != null && name != 'contact' && name != 'CGU');
+      (name != null && name != 'contact' && name != 'CGU' && name != 'CV');
 }
