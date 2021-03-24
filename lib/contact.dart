@@ -34,7 +34,7 @@ class _ContactScreenState extends State<ContactScreen> {
   @override
   void initState() {
     super.initState();
-    service.rootBundle.load('mail.riv').then(
+    service.rootBundle.load('assets/mail.riv').then(
       (data) async {
         final file = rive.RiveFile();
 

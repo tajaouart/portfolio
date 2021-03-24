@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Projects App',
+      title: 'Tajaouart',
       routerDelegate: _routerDelegate,
       routeInformationParser: _routeInformationParser,
     );
@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage>
     super.initState();
     Provider.of<ProjectViewModel>(context, listen: false).fetchProjects();
 
-    service.rootBundle.load('flame_and_spark.riv').then(
+    service.rootBundle.load('assets/flame_and_spark.riv').then(
       (data) async {
         final file = rive.RiveFile();
 
@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<ProjectViewModel>(context);
-    if(firstBuild){
+    if (firstBuild) {
       if (viewModel.projects != null) {
         viewModel.projects.sort((a, b) => (a.state.compareTo("published") *
             a.state.compareTo("unpublished") *
@@ -106,7 +106,6 @@ class _MyHomePageState extends State<MyHomePage>
         viewModel.projects = viewModel.projects.reversed.toList();
         firstBuild = false;
       }
-
     }
 
     return Scaffold(
@@ -401,8 +400,11 @@ class _MyHomePageState extends State<MyHomePage>
                               InkWell(
                                 onTap: (project.state == "published")
                                     ? () => widget.onTapped(project)
-                                    : () => _launchURL(
-                                        "https://www.linkedin.com/in/tajaouart"),
+                                    : (project.state == "website")
+                                        ? () => _launchURL(
+                                            "https://lounacar-11541.web.app/")
+                                        : () => _launchURL(
+                                            "https://www.linkedin.com/in/tajaouart"),
                                 child: ProjectWidget(project),
                               )
                           ],
