@@ -41,7 +41,7 @@ class _CVScreenState extends State<CVScreen> with TickerProviderStateMixin {
           children: [
             Center(
                 child: PhotoView(
-              imageProvider: AssetImage("assets/TAJOUART-Mounir_CV.jpg"),
+              imageProvider: AssetImage("assets/TAJOUART-Mounir_CV.png"),
               backgroundDecoration: new BoxDecoration(
                   gradient: new LinearGradient(
                       begin: Alignment.topCenter,

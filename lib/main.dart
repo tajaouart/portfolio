@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage>
   var _containerWidth = 0.0;
   var _containerColor = Colors.black87;
   var reverse = false;
+  var firstBuild = true;
 
   @override
   void initState() {
@@ -97,11 +98,15 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<ProjectViewModel>(context);
-    if (viewModel.projects != null) {
-      viewModel.projects.sort((a, b) => (a.state.compareTo("published") *
-          a.state.compareTo("unpublished") *
-          a.state.compareTo(b.state)));
-      viewModel.projects = viewModel.projects.reversed.toList();
+    if(firstBuild){
+      if (viewModel.projects != null) {
+        viewModel.projects.sort((a, b) => (a.state.compareTo("published") *
+            a.state.compareTo("unpublished") *
+            a.state.compareTo(b.state)));
+        viewModel.projects = viewModel.projects.reversed.toList();
+        firstBuild = false;
+      }
+
     }
 
     return Scaffold(
@@ -301,7 +306,7 @@ class _MyHomePageState extends State<MyHomePage>
                                       hilightedText("Android/iOS"),
                                       TextSpan(
                                           text:
-                                              "; j'ai participé au développement de plusieurs applications natives durant mon alternance en utilisant Android Studio pour Android et XCode pour iOS. Je me suis orienté aussi vers le Cross-Platforme avec le FrameWork"),
+                                              "; j'ai participé au développement de plusieurs applications notamment durant mon alternance en utilisant Android Studio pour Android et XCode pour iOS. Je me suis orienté aussi vers le Cross-Platforme avec le FrameWork"),
                                       hilightedText(" Flutter "),
                                       TextSpan(
                                           text:
