@@ -7,13 +7,12 @@ import 'package:url_launcher/url_launcher.dart';
 import 'models.dart';
 
 class ProjectDetailsPage extends Page {
-  final Project project;
-  final String name;
-
   ProjectDetailsPage({
     this.project,
     this.name,
   }) : super(key: ValueKey(project));
+  final Project? project;
+  final String? name;
 
   Route createRoute(BuildContext context) {
     return MaterialPageRoute(
@@ -28,40 +27,41 @@ class ProjectDetailsPage extends Page {
 }
 
 class ProjectDetailsScreen extends StatelessWidget {
-  final Project project;
-  final String name;
-
-  ProjectDetailsScreen({
+  const ProjectDetailsScreen({
     this.project,
     this.name,
   });
 
+  final Project? project;
+  final String? name;
+
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<ProjectViewModel>(context);
-    bool isMobile = MediaQuery.of(context).size.width <= 414;
-    Project _project = project != null
-        ? project
-        : (viewModel.projects != null && viewModel.projects.length > 0)
-            ? viewModel.projects.firstWhere((element) => element.name == name)
-            : null;
+    final ProjectViewModel viewModel = Provider.of<ProjectViewModel>(context);
+    final bool isMobile = MediaQuery.of(context).size.width <= 414;
+    final Project? _project = project ??
+        ((viewModel.projects != null && viewModel.projects!.isNotEmpty)
+            ? viewModel.projects!
+                .firstWhere((Project element) => element.name == name)
+            : null);
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 0, 0, 0),
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        decoration: new BoxDecoration(
-            gradient: new LinearGradient(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-              Color.fromARGB(255, 0, 0, 0),
-              (_project != null && _project.color != null)
-                  ? Color(int.parse("0xff${_project.color}"))
-                  : Color.fromARGB(255, 0, 6, 61)
+                colors: <Color>[
+              const Color.fromARGB(255, 0, 0, 0),
+              if (_project != null)
+                Color(int.parse('0xff${_project.color}'))
+              else
+                const Color.fromARGB(255, 0, 6, 61)
             ])),
         child: SingleChildScrollView(
           child: Column(
@@ -70,19 +70,20 @@ class ProjectDetailsScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: _project != null
                     ? Hero(
-                        tag: "name",
+                        tag: 'name',
                         child: Text(
                           _project.name,
-                          style: TextStyle(color: Colors.white, fontSize: 20),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 20),
                         ),
                       )
-                    : CircularProgressIndicator(),
+                    : const CircularProgressIndicator(),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 22,
               ),
               Hero(
-                tag: "project_logo",
+                tag: 'project_logo',
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(99),
                   child: Container(
@@ -93,87 +94,89 @@ class ProjectDetailsScreen extends StatelessWidget {
                           ? Image.network(
                               _project.logo.toString(),
                             )
-                          : CircularProgressIndicator(),
+                          : const CircularProgressIndicator(),
                     ),
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
               Container(
                 width: MediaQuery.of(context).size.width > 360 ? 360 : 300,
                 child: Text(
                   _project == null
-                      ? ""
-                      : _project.description.replaceAll(".", ".\n\n"),
-                  style: TextStyle(color: Colors.white),
+                      ? ''
+                      : _project.description.replaceAll('.', '.\n\n'),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
-              (_project == null ||
-                      _project.tools == null ||
-                      _project.tools.isEmpty)
-                  ? Center()
-                  : Column(
+              if (_project == null ||
+                  _project.tools == null ||
+                  _project.tools!.isEmpty)
+                Center()
+              else
+                Column(
+                  children: <Widget>[
+                    const SizedBox(height: 50),
+                    const Text(
+                      'Les outils utilisés',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
+                    const SizedBox(height: 50),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
                       children: [
-                        SizedBox(height: 50),
-                        Text(
-                          'Les outils utilisés',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                        SizedBox(height: 50),
-                        Wrap(
-                          spacing: 16,
-                          runSpacing: 16,
-                          children: [
-                            for (var tool in _project.tools)
-                              Chip(label: Text(tool))
-                          ],
-                        ),
+                        for (final String tool in _project.tools!)
+                          Chip(label: Text(tool))
                       ],
                     ),
-              SizedBox(height: 50),
-              Text(
+                  ],
+                ),
+              const SizedBox(height: 50),
+              const Text(
                 'Screens',
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 24,
               ),
-              !isMobile
-                  ? Center()
-                  : Hero(
-                      tag: "expand",
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 36.0),
-                        child: Material(
-                            color: Colors.transparent,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: IconButton(
-                                    icon: Image.asset('assets/expand.png'),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ExpandedCarouselPage(_project)),
-                                      );
-                                    }),
-                              ),
-                            )),
-                      ),
-                    ),
+              if (!isMobile)
+                const Center()
+              else
+                Hero(
+                  tag: 'expand',
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 36.0),
+                    child: Material(
+                        color: Colors.transparent,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: IconButton(
+                                icon: Image.asset('assets/expand.png'),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            ExpandedCarouselPage(_project)),
+                                  );
+                                }),
+                          ),
+                        )),
+                  ),
+                ),
               Container(
                 width: 414,
                 decoration: BoxDecoration(
-                  color: (_project != null && _project.color != null)
-                      ? Color(int.parse("0xFF${_project.color}")).withAlpha(180)
+                  color: (_project != null)
+                      ? Color(int.parse('0xFF${_project.color}')).withAlpha(180)
                       : Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(4)),
-                  boxShadow: [
+                  borderRadius: const BorderRadius.all(Radius.circular(4)),
+                  boxShadow: const <BoxShadow>[
                     BoxShadow(
                       color: Colors.black,
                       spreadRadius: 8,
@@ -184,7 +187,7 @@ class ProjectDetailsScreen extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                   child: Hero(
-                    tag: "carousel",
+                    tag: 'carousel',
                     child: CarouselSlider(
                       options: CarouselOptions(
                         height: 600.0,
@@ -194,26 +197,27 @@ class ProjectDetailsScreen extends StatelessWidget {
                       ),
                       items: ((_project != null && _project.screens != null)
                               ? _project.screens
-                              : [])
-                          .map((item) {
+                              : <String>[])!
+                          .map((String item) {
                         return Builder(
                           builder: (BuildContext context) {
                             return Container(
                                 width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 5.0),
                                 child: Stack(
-                                  children: [
+                                  children: <Widget>[
                                     Positioned.fill(
                                       child: ClipRRect(
-                                        borderRadius: BorderRadius.only(
+                                        borderRadius: const BorderRadius.only(
                                             topLeft: Radius.circular(10),
                                             topRight: Radius.circular(10)),
                                         child: Container(
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(18))),
                                           child: Image.network(
-                                            _project.screens[_project.screens
+                                            _project!.screens![_project.screens!
                                                     .indexOf(item)]
                                                 .toString(),
                                             fit: BoxFit.cover,
@@ -227,18 +231,15 @@ class ProjectDetailsScreen extends StatelessWidget {
                                       left: 0.0,
                                       right: 0.0,
                                       child: Container(
-                                        color: (_project != null &&
-                                                _project.color != null)
-                                            ? Color(int.parse(
-                                                    "0xFF${_project.color}"))
-                                                .withAlpha(150)
-                                            : Colors.black,
-                                        padding: EdgeInsets.symmetric(
+                                        color: Color(int.parse(
+                                                '0xFF${_project.color}'))
+                                            .withAlpha(150),
+                                        padding: const EdgeInsets.symmetric(
                                             vertical: 10.0, horizontal: 20.0),
                                         child: Center(
                                           child: Text(
-                                            '${_project.screens.indexOf(item) + 1}/${_project.screens.length}',
-                                            style: TextStyle(
+                                            '${_project.screens!.indexOf(item) + 1}/${_project.screens!.length}',
+                                            style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 20.0,
                                               fontWeight: FontWeight.bold,
@@ -256,40 +257,39 @@ class ProjectDetailsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 100,
               ),
-              (_project == null ||
-                      _project.googlePlayLink == null ||
-                      _project.googlePlayLink.isEmpty)
-                  ? Center()
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Divider(),
-                        SizedBox(
-                          height: 32,
-                        ),
-                        Text(
-                          "Voir sur le store",
-                          style: GoogleFonts.titilliumWeb(
-                              color: Colors.white, fontSize: 20),
-                        ),
-                        SizedBox(
-                          height: 32,
-                        ),
-                        InkWell(
-                          onTap: () => _launchURL(_project.googlePlayLink),
-                          child: Image.asset(
-                            "assets/google_play.png",
-                            height: 64,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 32,
-                        ),
-                      ],
-                    )
+              if (_project == null || _project.googlePlayLink.isEmpty)
+                const Center()
+              else
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Divider(),
+                    const SizedBox(
+                      height: 32,
+                    ),
+                    Text(
+                      'Voir sur le store',
+                      style: GoogleFonts.titilliumWeb(
+                          color: Colors.white, fontSize: 20),
+                    ),
+                    const SizedBox(
+                      height: 32,
+                    ),
+                    InkWell(
+                      onTap: () => _launchURL(_project.googlePlayLink),
+                      child: Image.asset(
+                        'assets/google_play.png',
+                        height: 64,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 32,
+                    ),
+                  ],
+                )
             ],
           ),
         ),
@@ -297,7 +297,7 @@ class ProjectDetailsScreen extends StatelessWidget {
     );
   }
 
-  _launchURL(url) async {
+  Future<void> _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -307,9 +307,9 @@ class ProjectDetailsScreen extends StatelessWidget {
 }
 
 class ExpandedCarouselPage extends StatefulWidget {
-  Project project;
-
   ExpandedCarouselPage(this.project);
+
+  final Project? project;
 
   @override
   _ExpandedCarouselPageState createState() => _ExpandedCarouselPageState();
@@ -318,12 +318,13 @@ class ExpandedCarouselPage extends StatefulWidget {
 class _ExpandedCarouselPageState extends State<ExpandedCarouselPage> {
   final AppBar appBar = AppBar();
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
         leading: Hero(
-          tag: "expand",
+          tag: 'expand',
           child: Material(
             color: Colors.transparent,
             child: IconButton(
@@ -335,17 +336,17 @@ class _ExpandedCarouselPageState extends State<ExpandedCarouselPage> {
           ),
         ),
         title: Text(
-          widget.project.name,
-          style: TextStyle(color: Colors.white, fontSize: 20),
+          widget.project!.name,
+          style: const TextStyle(color: Colors.white, fontSize: 20),
         ),
         actions: [
           Hero(
-            tag: "project_logo",
+            tag: 'project_logo',
             child: ClipRRect(
               borderRadius: BorderRadius.circular(99),
               child: Center(
                 child: Image.network(
-                  widget.project.logo.toString(),
+                  widget.project!.logo.toString(),
                 ),
               ),
             ),
@@ -356,19 +357,20 @@ class _ExpandedCarouselPageState extends State<ExpandedCarouselPage> {
           child: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        decoration: new BoxDecoration(
-            gradient: new LinearGradient(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-              Color.fromARGB(255, 0, 0, 0),
-              (widget.project != null && widget.project.color != null)
-                  ? Color(int.parse("0xff${widget.project.color}"))
-                  : Color.fromARGB(255, 0, 6, 61)
+                colors: <Color>[
+              const Color.fromARGB(255, 0, 0, 0),
+              if (widget.project != null)
+                Color(int.parse('0xff${widget.project!.color}'))
+              else
+                const Color.fromARGB(255, 0, 6, 61)
             ])),
         child: Center(
           child: Hero(
-            tag: "carousel",
+            tag: 'carousel',
             child: CarouselSlider(
               options: CarouselOptions(
                 height: 600.0,
@@ -376,30 +378,31 @@ class _ExpandedCarouselPageState extends State<ExpandedCarouselPage> {
                 enlargeCenterPage: true,
                 enableInfiniteScroll: false,
               ),
-              items: ((widget.project != null && widget.project.screens != null)
-                      ? widget.project.screens
-                      : [])
-                  .map((item) {
+              items:
+                  ((widget.project != null && widget.project!.screens != null)
+                          ? widget.project!.screens
+                          : <String>[])!
+                      .map((String item) {
                 return Builder(
                   builder: (BuildContext context) {
                     return Container(
                         width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.symmetric(horizontal: 5.0),
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
                         child: Stack(
-                          children: [
+                          children: <Widget>[
                             Positioned.fill(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.only(
+                                borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(10),
                                     topRight: Radius.circular(10)),
                                 child: Container(
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(18))),
                                   child: Image.network(
                                     widget
-                                        .project
-                                        .screens[widget.project.screens
+                                        .project!
+                                        .screens![widget.project!.screens!
                                             .indexOf(item)]
                                         .toString(),
                                     fit: BoxFit.cover,
@@ -413,18 +416,17 @@ class _ExpandedCarouselPageState extends State<ExpandedCarouselPage> {
                               left: 0.0,
                               right: 0.0,
                               child: Container(
-                                color: (widget.project != null &&
-                                        widget.project.color != null)
+                                color: (widget.project != null)
                                     ? Color(int.parse(
-                                            "0xFF${widget.project.color}"))
+                                            '0xFF${widget.project!.color}'))
                                         .withAlpha(150)
                                     : Colors.black,
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     vertical: 10.0, horizontal: 20.0),
                                 child: Center(
                                   child: Text(
-                                    '${widget.project.screens.indexOf(item) + 1}/${widget.project.screens.length}',
-                                    style: TextStyle(
+                                    '${widget.project!.screens!.indexOf(item) + 1}/${widget.project!.screens!.length}',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.bold,

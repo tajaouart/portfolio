@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart' as service;
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:portfolio/contact.dart';
 import 'package:provider/provider.dart';
-import 'package:rive/rive.dart' as rive;
+import 'package:rive/rive.dart' as r;
 import 'package:url_launcher/url_launcher.dart';
 
 import '404.dart';
@@ -18,16 +18,19 @@ import 'models.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) => ProjectViewModel(),
+      create: (BuildContext context) => ProjectViewModel(),
       child: MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  ProjectRouterDelegate _routerDelegate = ProjectRouterDelegate();
-  ProjectRouteInformationParser _routeInformationParser =
-      ProjectRouteInformationParser();
+  MyApp()
+      : _routerDelegate = ProjectRouterDelegate(),
+        _routeInformationParser = ProjectRouteInformationParser();
+
+  final ProjectRouterDelegate _routerDelegate;
+  final ProjectRouteInformationParser _routeInformationParser;
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +44,13 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({
+    required this.projects,
+    required this.onTapped,
+  });
+
   final List<Project> projects;
   final ValueChanged<Object> onTapped;
-
-  MyHomePage({
-    @required this.projects,
-    @required this.onTapped,
-  });
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -56,54 +59,48 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   bool get isMobile => MediaQuery.of(context).size.width <= 414;
-  rive.Artboard _riveArtboard;
-  rive.RiveAnimationController _controller;
-  var _containerWidth = 0.0;
-  var _containerColor = Colors.black87;
-  var reverse = false;
-  var firstBuild = true;
+  r.Artboard? _riveArtBoard;
+  double _containerWidth = 0.0;
+  bool reverse = false;
+  bool firstBuild = true;
+  r.RiveAnimationController? _controller;
 
   @override
   void initState() {
     super.initState();
     Provider.of<ProjectViewModel>(context, listen: false).fetchProjects();
 
-    service.rootBundle.load('assets/flame_and_spark.riv').then(
-      (data) async {
-        final file = rive.RiveFile();
-
+    rootBundle.load('assets/flame.riv').then(
+      (ByteData data) async {
         // Load the RiveFile from the binary data.
-        if (file.import(data)) {
-          // The artboard is the root of the animation and gets drawn in the
-          // Rive widget.
-          final artboard = file.mainArtboard;
-          // Add a controller to play back a known animation on the main/default
-          // artboard.We store a reference to it so we can toggle playback.
-          artboard
-              .addController(_controller = rive.SimpleAnimation('Untitled 1'));
-          setState(() {
-            _riveArtboard = artboard;
-          });
-        }
+        final r.RiveFile file = r.RiveFile.import(data);
+        // The artboard is the root of the animation and gets drawn in the
+        // Rive widget.
+        final r.Artboard artboard = file.mainArtboard;
+        // Add a controller to play back a known animation on the main/default
+        // artboard.We store a reference to it so we can toggle playback.
+        artboard.addController(_controller = r.SimpleAnimation('idle'));
+        setState(() => _riveArtBoard = artboard);
       },
     );
-    Future.delayed(Duration(seconds: 2)).then((value) {
+
+    Future<void>.delayed(const Duration(seconds: 2)).then((_) {
       setState(() {
         _containerWidth = MediaQuery.of(context).size.width;
-        _containerColor = Colors.black87;
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<ProjectViewModel>(context);
+    final ProjectViewModel viewModel = Provider.of<ProjectViewModel>(context);
     if (firstBuild) {
       if (viewModel.projects != null) {
-        viewModel.projects.sort((a, b) => (a.state.compareTo("published") *
-            a.state.compareTo("unpublished") *
-            a.state.compareTo(b.state)));
-        viewModel.projects = viewModel.projects.reversed.toList();
+        viewModel.projects!.sort((Project a, Project b) =>
+            a.state.compareTo('published') *
+            a.state.compareTo('unpublished') *
+            a.state.compareTo(b.state));
+        viewModel.projects = viewModel.projects!.reversed.toList();
         firstBuild = false;
       }
     }
@@ -112,8 +109,8 @@ class _MyHomePageState extends State<MyHomePage>
       body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          decoration: new BoxDecoration(
-              gradient: new LinearGradient(
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
@@ -123,8 +120,8 @@ class _MyHomePageState extends State<MyHomePage>
           )),
           child: SingleChildScrollView(
             child: Column(
-              children: [
-                SizedBox(
+              children: <Widget>[
+                const SizedBox(
                   height: 24,
                 ),
                 Align(
@@ -136,10 +133,10 @@ class _MyHomePageState extends State<MyHomePage>
                       child: Wrap(
                           alignment: WrapAlignment.spaceBetween,
                           runSpacing: 24,
-                          children: [
+                          children: <Widget>[
                             Container(
                               child: Hero(
-                                tag: "logo",
+                                tag: 'logo',
                                 child: Material(
                                   color: Colors.transparent,
                                   child: Wrap(
@@ -148,37 +145,39 @@ class _MyHomePageState extends State<MyHomePage>
                                         : WrapAlignment.start,
                                     crossAxisAlignment:
                                         WrapCrossAlignment.center,
-                                    children: [
+                                    children: <Widget>[
                                       Container(
                                         width: isMobile ? 200 : null,
-                                        child: Text(
-                                          "TAJAOUART Mounir",
+                                        child: const Text(
+                                          'TAJAOUART Mounir',
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold),
                                         ),
                                       ),
-                                      isMobile
-                                          ? Center()
-                                          : Container(
-                                              height: 24,
-                                              width: 3,
-                                              color: Colors.white,
-                                            ),
+                                      if (isMobile)
+                                        const Center()
+                                      else
+                                        Container(
+                                          height: 24,
+                                          width: 3,
+                                          color: Colors.white,
+                                        ),
                                       Container(
                                         width: 200,
                                         child: Row(
                                           children: [
-                                            isMobile
-                                                ? Container(
-                                                    height: 24,
-                                                    width: 3,
-                                                    color: Colors.white,
-                                                  )
-                                                : SizedBox(),
-                                            Text(
-                                              "Développeur mobile",
+                                            if (isMobile)
+                                              Container(
+                                                height: 24,
+                                                width: 3,
+                                                color: Colors.white,
+                                              )
+                                            else
+                                              const SizedBox(),
+                                            const Text(
+                                              'Développeur mobile',
                                               textAlign: TextAlign.end,
                                               style: TextStyle(
                                                   color: Color.fromARGB(
@@ -197,17 +196,17 @@ class _MyHomePageState extends State<MyHomePage>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 48,
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: TextButton(
                                         onPressed: () {
-                                          widget.onTapped("contact");
+                                          widget.onTapped('contact');
                                         },
-                                        child: Text(
-                                          "Contact",
+                                        child: const Text(
+                                          'Contact',
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 20),
@@ -217,10 +216,10 @@ class _MyHomePageState extends State<MyHomePage>
                                     padding: const EdgeInsets.all(8.0),
                                     child: TextButton(
                                         onPressed: () {
-                                          widget.onTapped("CGU");
+                                          widget.onTapped('CGU');
                                         },
-                                        child: Text(
-                                          "CGU",
+                                        child: const Text(
+                                          'CGU',
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 20),
@@ -230,16 +229,16 @@ class _MyHomePageState extends State<MyHomePage>
                                     padding: const EdgeInsets.all(8.0),
                                     child: TextButton(
                                         onPressed: () {
-                                          widget.onTapped("CV");
+                                          widget.onTapped('CV');
                                         },
-                                        child: Text(
-                                          "CV",
+                                        child: const Text(
+                                          'CV',
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 20),
                                         )),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 48,
                                   )
                                 ],
@@ -249,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage>
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 48,
                 ),
                 Container(
@@ -258,26 +257,27 @@ class _MyHomePageState extends State<MyHomePage>
                     runSpacing: 16,
                     alignment: WrapAlignment.center,
                     crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
+                    children: <Widget>[
                       ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(8)),
                         child: Container(
                             height: 200,
                             width: 200,
                             child: Image.asset(
-                              "assets/profile_photo.jpg",
+                              'assets/profile_photo.jpg',
                               fit: BoxFit.fitWidth,
                             )),
                       ),
                       Container(
-                        constraints: BoxConstraints(maxWidth: 600),
+                        constraints: const BoxConstraints(maxWidth: 600),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: <Widget>[
                             Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Container(
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                     color: Colors.cyan,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(4))),
@@ -287,29 +287,30 @@ class _MyHomePageState extends State<MyHomePage>
                             ),
                             Expanded(
                               child: Container(
-                                constraints: BoxConstraints(maxWidth: 450),
-                                child: new RichText(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 450),
+                                child: RichText(
                                   text: TextSpan(
                                     style: GoogleFonts.openSansCondensed(
                                       height: 1.5,
                                       color: Colors.white,
                                       fontSize: 23,
                                     ),
-                                    text: "",
+                                    text: '',
                                     children: <TextSpan>[
-                                      TextSpan(text: "Je suis "),
+                                      const TextSpan(text: 'Je suis '),
                                       TextSpan(
-                                          text: "développeur mobile ",
+                                          text: 'développeur mobile ',
                                           style: GoogleFonts.openSansCondensed(
                                               fontWeight: FontWeight.bold)),
-                                      hilightedText("Android/iOS"),
-                                      TextSpan(
+                                      highlightedText('Android/iOS'),
+                                      const TextSpan(
                                           text:
-                                              "; j'ai participé au développement de plusieurs applications notamment durant mon alternance en utilisant Android Studio pour Android et XCode pour iOS. Je me suis orienté aussi vers le Cross-Platforme avec le FrameWork"),
-                                      hilightedText(" Flutter "),
-                                      TextSpan(
+                                              '; j\'ai participé au développement de plusieurs applications notamment durant mon alternance en utilisant Android Studio pour Android et XCode pour iOS. Je me suis orienté aussi vers le Cross-Platforme avec le FrameWork'),
+                                      highlightedText(' Flutter '),
+                                      const TextSpan(
                                           text:
-                                              "qui permet de créer des applications natives Android et IOS et même pour le Web. ")
+                                              'qui permet de créer des applications natives Android et IOS et même pour le Web. (ce site est créé avec Flutter) ')
                                     ],
                                   ),
                                 ),
@@ -321,17 +322,17 @@ class _MyHomePageState extends State<MyHomePage>
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 100,
                 ),
-                Text(
-                  "Les outils",
+                const Text(
+                  'Les outils',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 50),
+                const SizedBox(height: 50),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Wrap(
@@ -344,159 +345,162 @@ class _MyHomePageState extends State<MyHomePage>
                       Container(
                         width: null,
                         height: 100,
-                        child: Image.asset("assets/flutter.png",
+                        child: Image.asset('assets/flutter.png',
                             fit: BoxFit.contain),
                       ),
                       Container(
                           width: null,
                           height: 100,
-                          child: Image.asset("assets/android.png",
+                          child: Image.asset('assets/android.png',
                               fit: BoxFit.contain)),
                       Container(
                           width: null,
                           height: 100,
-                          child: Image.asset("assets/xcode.png",
+                          child: Image.asset('assets/xcode.png',
                               fit: BoxFit.contain)),
                       Container(
                           width: null,
                           height: 100,
                           child: Image.asset(
-                            "assets/adobexd.png",
+                            'assets/adobexd.png',
                             fit: BoxFit.contain,
                           )),
                       Container(
                           width: null,
                           height: 100,
-                          child: Image.asset("assets/firebase.png",
+                          child: Image.asset('assets/firebase.png',
                               fit: BoxFit.contain)),
                       Container(
                         width: null,
                         height: 100,
-                        child: Image.asset("assets/django.png",
+                        child: Image.asset('assets/django.png',
                             fit: BoxFit.contain),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 100,
                 ),
-                Text(
-                  "Les projets",
+                const Text(
+                  'Les projets',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 50),
-                viewModel.projects != null && viewModel.projects.length > 0
-                    ? Padding(
-                        padding: EdgeInsets.all(isMobile ? 8 : 24.0),
-                        child: Wrap(
-                          spacing: 100,
-                          runSpacing: 100,
-                          children: [
-                            for (var project in viewModel.projects)
-                              InkWell(
-                                onTap: (project.state == "published")
-                                    ? () => widget.onTapped(project)
-                                    : (project.state == "website")
-                                        ? () => _launchURL(
-                                            "https://lounacar-11541.web.app/")
-                                        : () => _launchURL(
-                                            "https://www.linkedin.com/in/tajaouart"),
-                                child: ProjectWidget(project),
-                              )
-                          ],
-                        ),
-                      )
-                    : Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                SizedBox(
+                const SizedBox(height: 50),
+                if (viewModel.projects != null &&
+                    viewModel.projects!.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.all(isMobile ? 8 : 24.0),
+                    child: Wrap(
+                      spacing: 100,
+                      runSpacing: 100,
+                      children: [
+                        for (final Project project in viewModel.projects!)
+                          InkWell(
+                            onTap: (project.state == 'published')
+                                ? () => widget.onTapped(project)
+                                : (project.state == 'website')
+                                    ? () => _launchURL(
+                                        'https://lounacar-11541.web.app/')
+                                    : () => _launchURL(
+                                        'https://www.linkedin.com/in/tajaouart'),
+                            child: ProjectWidget(project),
+                          )
+                      ],
+                    ),
+                  )
+                else
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                const SizedBox(
                   height: 100,
                 ),
-                Text(
-                  "Trouvez-moi sur",
+                const Text(
+                  'Trouvez-moi sur',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 50),
+                const SizedBox(height: 50),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: <Widget>[
                       InkWell(
                           onTap: () => _launchURL(
-                              "https://www.linkedin.com/in/tajaouart"),
+                              'https://www.linkedin.com/in/tajaouart'),
                           child: Container(
                               width: 50,
                               child: Image.asset('assets/linkedin.png'))),
-                      SizedBox(
+                      const SizedBox(
                         width: 32,
                       ),
                       InkWell(
                           onTap: () => _launchURL(
-                              "https://www.malt.fr/profile/mounirtajaouart"),
+                              'https://www.malt.fr/profile/mounirtajaouart'),
                           child: Container(
                               width: 50, child: Image.asset('assets/malt.png')))
                     ],
                   ),
                 ),
-                SizedBox(height: 100),
-                (_riveArtboard == null)
-                    ? const SizedBox()
-                    : Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 300,
-                        child: FittedBox(
-                          alignment: Alignment.centerLeft,
-                          child: Wrap(
-                            alignment: WrapAlignment.start,
-                            children: [
-                              AnimatedContainer(
-                                  onEnd: () {
-                                    setState(() {
-                                      _containerWidth = _containerWidth == 0
-                                          ? MediaQuery.of(context).size.width
-                                          : 0;
-                                      reverse = !reverse;
-                                    });
-                                  },
-                                  width: _containerWidth,
-                                  curve: Curves.slowMiddle,
-                                  duration: Duration(seconds: 5)),
-                              Transform(
-                                transform: reverse
-                                    ? Matrix4.rotationY(3.14)
-                                    : Matrix4.rotationY(0),
-                                alignment: Alignment.center,
-                                child: Container(
-                                    width: 300,
-                                    height: 300,
-                                    child: rive.Rive(artboard: _riveArtboard)),
-                              )
-                            ],
-                          ),
-                        ),
+                const SizedBox(height: 100),
+                if (_riveArtBoard == null)
+                  const SizedBox()
+                else
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 300,
+                    child: FittedBox(
+                      alignment: Alignment.centerLeft,
+                      child: Wrap(
+                        alignment: WrapAlignment.start,
+                        children: <Widget>[
+                          AnimatedContainer(
+                              onEnd: () {
+                                setState(() {
+                                  _containerWidth = _containerWidth == 0
+                                      ? MediaQuery.of(context).size.width
+                                      : 0;
+                                  reverse = !reverse;
+                                });
+                              },
+                              width: _containerWidth,
+                              curve: Curves.slowMiddle,
+                              duration: const Duration(seconds: 5)),
+                          Transform(
+                            transform: reverse
+                                ? Matrix4.rotationY(3.14)
+                                : Matrix4.rotationY(0),
+                            alignment: Alignment.center,
+                            child: Container(
+                                width: 300,
+                                height: 300,
+                                child: r.Rive(artboard: _riveArtBoard!)),
+                          )
+                        ],
                       ),
-                SizedBox(height: 100),
-                Center(
+                    ),
+                  ),
+                const SizedBox(height: 100),
+                const Center(
                     child: Text(
-                  "© All Rights Reserved",
+                  '© All Rights Reserved',
                   style: TextStyle(color: Colors.white),
                 )),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
               ],
             ),
           )),
     );
   }
 
-  _launchURL(url) async {
+  Future<void> _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -505,11 +509,11 @@ class _MyHomePageState extends State<MyHomePage>
   }
 }
 
-TextSpan hilightedText(txt) {
+TextSpan highlightedText(String txt) {
   return TextSpan(
       text: txt,
       style: GoogleFonts.openSansCondensed(
-          color: Color.fromARGB(255, 182, 42, 222),
+          color: const Color.fromARGB(255, 182, 42, 222),
           fontWeight: FontWeight.bold));
 }
 
@@ -518,31 +522,39 @@ class ProjectRouteInformationParser
   @override
   Future<ProjectRoutePath> parseRouteInformation(
       RouteInformation routeInformation) async {
-    final uri = Uri.parse(routeInformation.location);
+    final Uri uri = Uri.parse(routeInformation.location!);
     // Handle '/'
-    if (uri.pathSegments.length == 0) {
+    if (uri.pathSegments.isEmpty) {
       return ProjectRoutePath.home();
     }
 
     if (uri.pathSegments.length == 1) {
       // Handle '/contact'
       if (uri.pathSegments[0] == 'contact')
-        return ProjectRoutePath.contact("contact");
+        return ProjectRoutePath.contact('contact');
 
       // Handle '/CGU'
-      if (uri.pathSegments[0] == 'CGU') return ProjectRoutePath.cgu("CGU");
+      if (uri.pathSegments[0] == 'CGU') {
+        return ProjectRoutePath.cgu('CGU');
+      }
 
       // Handle '/CV'
-      if (uri.pathSegments[0] != 'CV') return ProjectRoutePath.unknown();
-      return ProjectRoutePath.cv("CV");
+      if (uri.pathSegments[0] != 'CV') {
+        ProjectRoutePath.unknown();
+      }
+      return ProjectRoutePath.cv('CV');
     }
 
     // Handle '/project/:name'
     if (uri.pathSegments.length == 2) {
-      if (uri.pathSegments[0] != 'project') return ProjectRoutePath.unknown();
-      var remaining = uri.pathSegments[1];
-      var name = remaining.toString();
-      if (name == null) return ProjectRoutePath.unknown();
+      if (uri.pathSegments[0] != 'project') {
+        return ProjectRoutePath.unknown();
+      }
+      final String remaining = uri.pathSegments[1];
+      final String name = remaining.toString();
+      if (name.isEmpty) {
+        return ProjectRoutePath.unknown();
+      }
       return ProjectRoutePath.details(name);
     }
 
@@ -551,24 +563,24 @@ class ProjectRouteInformationParser
   }
 
   @override
-  RouteInformation restoreRouteInformation(ProjectRoutePath path) {
-    if (path.isUnknown) {
-      return RouteInformation(location: '/404');
+  RouteInformation? restoreRouteInformation(ProjectRoutePath configuration) {
+    if (configuration.isUnknown) {
+      return const RouteInformation(location: '/404');
     }
-    if (path.isHomePage) {
-      return RouteInformation(location: '/');
+    if (configuration.isHomePage) {
+      return const RouteInformation(location: '/');
     }
-    if (path.isContactPage) {
-      return RouteInformation(location: '/contact');
+    if (configuration.isContactPage) {
+      return const RouteInformation(location: '/contact');
     }
-    if (path.isCGUPage) {
-      return RouteInformation(location: '/CGU');
+    if (configuration.isCGUPage) {
+      return const RouteInformation(location: '/CGU');
     }
-    if (path.isCVPage) {
-      return RouteInformation(location: '/CV');
+    if (configuration.isCVPage) {
+      return const RouteInformation(location: '/CV');
     }
-    if (path.isDetailsPage) {
-      return RouteInformation(location: '/project/${path.name}');
+    if (configuration.isDetailsPage) {
+      return RouteInformation(location: '/project/${configuration.name}');
     }
     return null;
   }
@@ -576,15 +588,18 @@ class ProjectRouteInformationParser
 
 class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<ProjectRoutePath> {
-  final GlobalKey<NavigatorState> navigatorKey;
-  TransitionDelegate transitionDelegate = NoAnimationTransitionDelegate();
-
-  Project _selectedProject;
-  String name;
-  bool show404 = false;
-
   ProjectRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
 
+  @override
+  final GlobalKey<NavigatorState> navigatorKey;
+  NoAnimationTransitionDelegate transitionDelegate =
+      NoAnimationTransitionDelegate();
+
+  Project? _selectedProject;
+  String? name;
+  bool show404 = false;
+
+  @override
   ProjectRoutePath get currentConfiguration {
     if (show404) {
       return ProjectRoutePath.unknown();
@@ -592,14 +607,14 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
     return (_selectedProject == null && name == null)
         ? ProjectRoutePath.home()
         : name == 'contact'
-            ? ProjectRoutePath.contact("contact")
+            ? ProjectRoutePath.contact('contact')
             : name == 'CGU'
-                ? ProjectRoutePath.cgu("CGU")
+                ? ProjectRoutePath.cgu('CGU')
                 : name == 'CV'
-                    ? ProjectRoutePath.cv("CV")
+                    ? ProjectRoutePath.cv('CV')
                     : ProjectRoutePath.details(_selectedProject == null
                         ? name
-                        : _selectedProject.name);
+                        : _selectedProject!.name);
   }
 
   @override
@@ -609,25 +624,27 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
       transitionDelegate: transitionDelegate,
       pages: [
         MaterialPage(
-          key: ValueKey('ProjectsListPage'),
+          key: const ValueKey('ProjectsListPage'),
           child: MyHomePage(
             onTapped: _handlePushRoute,
+            projects: [],
           ),
         ),
         if (show404)
-          MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen())
+          MaterialPage(
+              key: const ValueKey('UnknownPage'), child: UnknownScreen())
         else if (name == 'contact')
-          MaterialPage(key: ValueKey('contact'), child: ContactScreen())
+          MaterialPage(key: const ValueKey('contact'), child: ContactScreen())
         else if (name == 'CGU')
-          MaterialPage(key: ValueKey('CGU'), child: CGUScreen())
+          MaterialPage(key: const ValueKey('CGU'), child: CGUScreen())
         else if (name == 'CV')
-          MaterialPage(key: ValueKey('CV'), child: CVScreen())
+          MaterialPage(key: const ValueKey('CV'), child: CVScreen())
         else if (_selectedProject != null)
           ProjectDetailsPage(project: _selectedProject)
         else if (name != null)
           ProjectDetailsPage(name: name)
       ],
-      onPopPage: (route, result) {
+      onPopPage: (Route route, dynamic result) {
         if (!route.didPop(result)) {
           return false;
         }
@@ -644,30 +661,30 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
   }
 
   @override
-  Future<void> setNewRoutePath(ProjectRoutePath path) async {
-    if (path.isUnknown) {
+  Future<void> setNewRoutePath(ProjectRoutePath configuration) async {
+    if (configuration.isUnknown) {
       _selectedProject = null;
       show404 = true;
       name = null;
       return;
     }
 
-    if (path.isDetailsPage) {
-      name = path.name;
+    if (configuration.isDetailsPage) {
+      name = configuration.name;
       if (_selectedProject == null && name == null) {
         show404 = true;
         return;
       }
-    } else if (path.isContactPage) {
-      name = "contact";
+    } else if (configuration.isContactPage) {
+      name = 'contact';
       _selectedProject = null;
       show404 = false;
-    } else if (path.isCGUPage) {
-      name = "CGU";
+    } else if (configuration.isCGUPage) {
+      name = 'CGU';
       _selectedProject = null;
       show404 = false;
-    } else if (path.isCVPage) {
-      name = "CV";
+    } else if (configuration.isCVPage) {
+      name = 'CV';
       _selectedProject = null;
       show404 = false;
     } else {
@@ -677,31 +694,27 @@ class ProjectRouterDelegate extends RouterDelegate<ProjectRoutePath>
     show404 = false;
   }
 
-  void _handlePushRoute(object) {
+  void _handlePushRoute(dynamic object) {
     if (object is Project) {
       _selectedProject = object;
-    } else if (object.toString() == "contact") {
+    } else if (object.toString() == 'contact') {
       _selectedProject = null;
-      name = "contact";
-    } else if (object.toString() == "CGU") {
+      name = 'contact';
+    } else if (object.toString() == 'CGU') {
       _selectedProject = null;
-      name = "CGU";
-    } else if (object.toString() == "CV") {
+      name = 'CGU';
+    } else if (object.toString() == 'CV') {
       _selectedProject = null;
-      name = "CV";
+      name = 'CV';
     }
     notifyListeners();
   }
 }
 
 class ProjectRoutePath {
-  final String name;
-  final bool isUnknown;
-
   ProjectRoutePath.home()
       : name = null,
         isUnknown = false;
-
   ProjectRoutePath.details(this.name) : isUnknown = false;
 
   ProjectRoutePath.contact(this.name) : isUnknown = false;
@@ -714,6 +727,9 @@ class ProjectRoutePath {
       : name = null,
         isUnknown = true;
 
+  final String? name;
+  final bool isUnknown;
+
   bool get isHomePage => name == null;
 
   bool get isContactPage => name == 'contact';
@@ -723,5 +739,5 @@ class ProjectRoutePath {
   bool get isCVPage => name == 'CV';
 
   bool get isDetailsPage =>
-      (name != null && name != 'contact' && name != 'CGU' && name != 'CV');
+      name != null && name != 'contact' && name != 'CGU' && name != 'CV';
 }

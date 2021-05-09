@@ -6,23 +6,23 @@ class UnknownScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Color.fromARGB(255, 0, 0, 0),
+          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         ),
         body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          decoration: new BoxDecoration(
-              gradient: new LinearGradient(
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
+                  colors: <Color>[
                 Color.fromARGB(255, 0, 0, 0),
                 Color.fromARGB(255, 0, 6, 61)
               ])),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
-              child: SvgPicture.asset("page_not_found.svg",
+              child: SvgPicture.asset('page_not_found.svg',
                   semanticsLabel: 'Page not found'),
             ),
           ),

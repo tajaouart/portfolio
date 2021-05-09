@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' as service;
-import 'package:rive/rive.dart' as rive;
+import 'package:rive/rive.dart' as r;
 
 import 'components.dart';
 
-class ContacPage extends Page {
-  ContacPage() : super(key: ValueKey("contact"));
+class ContactPage extends Page {
+  const ContactPage() : super(key: const ValueKey('contact'));
 
-  Route createRoute(BuildContext context) {
+  @override
+  MaterialPageRoute<Widget> createRoute(BuildContext context) {
     return MaterialPageRoute(
       settings: this,
       builder: (BuildContext context) {
@@ -24,53 +25,50 @@ class ContactScreen extends StatefulWidget {
 }
 
 class _ContactScreenState extends State<ContactScreen> {
-  final nameController = TextEditingController();
-  final mailController = TextEditingController();
-  final messageController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController mailController = TextEditingController();
+  final TextEditingController messageController = TextEditingController();
 
   bool messageIsSucceeded = false;
-  List<bool> textFieldsStatus = [true, true, true];
+  List<bool> textFieldsStatus = <bool>[true, true, true];
+  r.RiveAnimationController? _controller;
 
   @override
   void initState() {
     super.initState();
     service.rootBundle.load('assets/mail.riv').then(
-      (data) async {
-        final file = rive.RiveFile();
-
+      (service.ByteData data) async {
         // Load the RiveFile from the binary data.
-        if (file.import(data)) {
-          // The artboard is the root of the animation and gets drawn in the
-          // Rive widget.
-          final artboard = file.mainArtboard;
-          // Add a controller to play back a known animation on the main/default
-          // artboard.We store a reference to it so we can toggle playback.
-          artboard.addController(_controller = rive.SimpleAnimation('mail'));
-          setState(() => _riveArtboard = artboard);
-        }
+        final r.RiveFile file = r.RiveFile.import(data);
+        // The artboard is the root of the animation and gets drawn in the
+        // Rive widget.
+        final r.Artboard artboard = file.mainArtboard;
+        // Add a controller to play back a known animation on the main/default
+        // artboard.We store a reference to it so we can toggle playback.
+        artboard.addController(_controller = r.SimpleAnimation('mail'));
+        setState(() => _riveArtBoard = artboard);
       },
     );
   }
 
-  rive.Artboard _riveArtboard;
-  rive.RiveAnimationController _controller;
+  r.Artboard? _riveArtBoard;
 
   @override
   Widget build(BuildContext context) {
-    var isMobile = MediaQuery.of(context).size.width < 414;
+    final bool isMobile = MediaQuery.of(context).size.width < 414;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 15, 20, 68),
+        backgroundColor: const Color.fromARGB(255, 15, 20, 68),
         shadowColor: Colors.transparent,
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: Icon(Icons.close)),
+            icon: const Icon(Icons.close)),
       ),
       body: Container(
-        decoration: new BoxDecoration(
-            gradient: new LinearGradient(
+        decoration: const BoxDecoration(
+            gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
@@ -79,33 +77,34 @@ class _ContactScreenState extends State<ContactScreen> {
           ],
         )),
         child: Stack(
-          children: [
-            _riveArtboard == null
-                ? const SizedBox()
-                : Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                        height: 500,
-                        width: MediaQuery.of(context).size.width,
-                        child: Row(
-                          children: [
-                            Container(
-                                width: MediaQuery.of(context).size.width / 2,
-                                child: rive.Rive(artboard: _riveArtboard)),
-                          ],
-                        )),
-                  ),
+          children: <Widget>[
+            if (_riveArtBoard == null)
+              const SizedBox()
+            else
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Container(
+                    height: 500,
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: r.Rive(artboard: _riveArtBoard!)),
+                      ],
+                    )),
+              ),
             ListView(
-              children: [
+              children: <Widget>[
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
-                      children: [
+                      children: <Widget>[
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Hero(
-                            tag: "logo",
+                            tag: 'logo',
                             child: Material(
                               color: Colors.transparent,
                               child: Wrap(
@@ -113,37 +112,39 @@ class _ContactScreenState extends State<ContactScreen> {
                                     ? WrapAlignment.center
                                     : WrapAlignment.start,
                                 crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
+                                children: <Widget>[
                                   Container(
                                     width: isMobile ? 200 : null,
-                                    child: Text(
-                                      "TAJAOUART Mounir",
+                                    child: const Text(
+                                      'TAJAOUART Mounir',
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold),
                                     ),
                                   ),
-                                  isMobile
-                                      ? Center()
-                                      : Container(
-                                          height: 24,
-                                          width: 3,
-                                          color: Colors.white,
-                                        ),
+                                  if (isMobile)
+                                    const Center()
+                                  else
+                                    Container(
+                                      height: 24,
+                                      width: 3,
+                                      color: Colors.white,
+                                    ),
                                   Container(
                                     width: 200,
                                     child: Row(
-                                      children: [
-                                        isMobile
-                                            ? Container(
-                                                height: 24,
-                                                width: 3,
-                                                color: Colors.white,
-                                              )
-                                            : SizedBox(),
-                                        Text(
-                                          "Développeur mobile",
+                                      children: <Widget>[
+                                        if (isMobile)
+                                          Container(
+                                            height: 24,
+                                            width: 3,
+                                            color: Colors.white,
+                                          )
+                                        else
+                                          const SizedBox(),
+                                        const Text(
+                                          'Développeur mobile',
                                           textAlign: TextAlign.end,
                                           style: TextStyle(
                                               color: Color.fromARGB(
@@ -158,36 +159,36 @@ class _ContactScreenState extends State<ContactScreen> {
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(24.0),
+                        const Padding(
+                          padding: EdgeInsets.all(24.0),
                           child: Text(
                             'Contact',
                             style: TextStyle(color: Colors.white, fontSize: 24),
                           ),
                         ),
                         Container(
-                          decoration: BoxDecoration(
-                              color: const Color(0xFF070034),
+                          decoration: const BoxDecoration(
+                              color: Color(0xFF070034),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10))),
                           width: 500,
                           height: 800,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
+                            children: <Widget>[
                               CustomTextField(
-                                  label: "Nom Complet",
+                                  label: 'Nom Complet',
                                   key: UniqueKey(),
                                   myController: nameController,
                                   isOK: textFieldsStatus[0]),
                               CustomTextField(
-                                  label: "Mail",
+                                  label: 'Mail',
                                   key: UniqueKey(),
                                   myController: mailController,
                                   isOK: textFieldsStatus[1]),
                               Container(
                                 child: CustomTextField(
-                                    label: "Message",
+                                    label: 'Message',
                                     key: UniqueKey(),
                                     myController: messageController,
                                     isOK: textFieldsStatus[2],
@@ -195,31 +196,31 @@ class _ContactScreenState extends State<ContactScreen> {
                               ),
                               TextButton(
                                   onPressed: () async {
-                                    if (nameController.text != "" &&
-                                        mailController.text != "" &&
-                                        messageController.text != "") {
-                                      CollectionReference messages =
+                                    if (nameController.text != '' &&
+                                        mailController.text != '' &&
+                                        messageController.text != '') {
+                                      final CollectionReference messages =
                                           FirebaseFirestore.instance
                                               .collection('messages');
 
                                       // Call the user's CollectionReference to add a new user
-                                      messages.add({
+                                      messages.add(<String, String>{
                                         'full_name':
                                             nameController.text, // John Doe
                                         'mail': mailController
                                             .text, // Stokes and Sons
                                         'message': messageController.text // 42
-                                      }).then((value) {
+                                      }).then((DocumentReference value) {
                                         setState(() {
-                                          nameController.text = "";
-                                          mailController.text = "";
-                                          messageController.text = "";
+                                          nameController.text = '';
+                                          mailController.text = '';
+                                          messageController.text = '';
                                           messageIsSucceeded = true;
                                           textFieldsStatus[0] = true;
                                           textFieldsStatus[1] = true;
                                           textFieldsStatus[2] = true;
                                         });
-                                      }).catchError((error) {
+                                      }).catchError(() {
                                         setState(() {
                                           messageIsSucceeded = false;
                                           textFieldsStatus[0] = false;
@@ -231,11 +232,11 @@ class _ContactScreenState extends State<ContactScreen> {
                                       setState(() {
                                         messageIsSucceeded = false;
                                         textFieldsStatus[0] =
-                                            nameController.text != "";
+                                            nameController.text != '';
                                         textFieldsStatus[1] =
-                                            mailController.text != "";
+                                            mailController.text != '';
                                         textFieldsStatus[2] =
-                                            messageController.text != "";
+                                            messageController.text != '';
                                       });
                                     }
                                   },
@@ -243,8 +244,9 @@ class _ContactScreenState extends State<ContactScreen> {
                                     decoration: BoxDecoration(
                                         color: messageIsSucceeded
                                             ? Colors.green
-                                            : Color.fromARGB(255, 182, 42, 222),
-                                        borderRadius: BorderRadius.all(
+                                            : const Color.fromARGB(
+                                                255, 182, 42, 222),
+                                        borderRadius: const BorderRadius.all(
                                             Radius.circular(9))),
                                     width: 150,
                                     height: 40,
@@ -255,9 +257,9 @@ class _ContactScreenState extends State<ContactScreen> {
                                         child: Center(
                                           child: Text(
                                             messageIsSucceeded
-                                                ? "Message envoyé"
-                                                : "Envoyer",
-                                            style: TextStyle(
+                                                ? 'Message envoyé'
+                                                : 'Envoyer',
+                                            style: const TextStyle(
                                               color: Colors.white,
                                             ),
                                           ),
@@ -268,7 +270,7 @@ class _ContactScreenState extends State<ContactScreen> {
                             ],
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 32,
                         ),
                       ],

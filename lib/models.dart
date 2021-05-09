@@ -2,41 +2,42 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Project extends ChangeNotifier {
+  Project.fromJson(QueryDocumentSnapshot json)
+      : id = json.id,
+        name = (json.data() as dynamic)['name'] as String? ?? '',
+        bigImagePath = (json.data() as dynamic)['bigImagePath'] as String? ?? '',
+        logo = (json.data() as dynamic)['logo'] as String? ?? '',
+        description = (json.data() as dynamic)['description'] as String? ?? '',
+        color = (json.data() as dynamic)['color'] as String? ?? 'B62ADE',
+        screens = ((json.data() as dynamic)['screens'] ?? []).cast<String>(),
+        tools = ((json.data() as dynamic)['tools'] ?? []).cast<String>(),
+        googlePlayLink =
+            (json.data() as dynamic)['googlePlayLink'] as String? ?? '',
+        state = (json.data() as dynamic)['state'] as String? ?? 'unpublished';
+
   String id;
   String name;
   String bigImagePath;
   String logo;
   String description;
   String color;
-  List<String> screens;
-  List<String> tools;
+  List<String>? screens;
+  List<String>? tools;
   String googlePlayLink;
-  String state = "unpublished";
+  String state = 'unpublished';
 
   static List<Project> fromJsonList(List<QueryDocumentSnapshot> jsonArray) {
-    return List.generate(
-        jsonArray.length, (index) => Project.fromJson(jsonArray[index]));
+    return List<Project>.generate(
+        jsonArray.length, (int index) => Project.fromJson(jsonArray[index]));
   }
-
-  Project.fromJson(QueryDocumentSnapshot json)
-      : id = json.id,
-        name = json.data()['name'],
-        bigImagePath = json.data()['bigImagePath'] ?? "",
-        logo = json.data()['logo'] ?? "",
-        description = json.data()['description'] ?? "",
-        color = json.data()['color'] ?? "B62ADE",
-        screens = (json.data()['screens'] ?? []).cast<String>(),
-        tools = (json.data()['tools'] ?? []).cast<String>(),
-        googlePlayLink = json.data()['googlePlayLink'] ?? "",
-        state = json.data()['state'] ?? "unpublished";
 }
 
 class ProjectService {
   static Future<List<Project>> getProjectsList() async {
-    QuerySnapshot querySnapshot =
+    final QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance.collection('projects').get();
 
-    List<Project> listProjects = Project.fromJsonList(querySnapshot.docs);
+    final List<Project> listProjects = Project.fromJsonList(querySnapshot.docs);
 
     if (listProjects.isNotEmpty) {
       return listProjects;
@@ -49,10 +50,10 @@ class ProjectService {
 }
 
 class ProjectViewModel extends ChangeNotifier {
-  List<Project> projects;
+  List<Project>? projects;
 
   Future<void> fetchProjects() async {
-    this.projects = await ProjectService.getProjectsList();
+    projects = await ProjectService.getProjectsList();
     notifyListeners();
   }
 }

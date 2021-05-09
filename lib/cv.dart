@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
 class CVPage extends Page {
-  CVPage() : super(key: ValueKey("cv"));
+  const CVPage() : super(key: const ValueKey('cv'));
 
   Route createRoute(BuildContext context) {
     return MaterialPageRoute(
@@ -22,28 +22,26 @@ class CVScreen extends StatefulWidget {
 class _CVScreenState extends State<CVScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    var isMobile = MediaQuery.of(context).size.width < 414;
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Curriculum vitæ"),
+          title: const Text('Curriculum vitæ'),
           leading: IconButton(
-            icon: Icon(Icons.close),
+            icon: const Icon(Icons.close),
             onPressed: () {
               Navigator.pop(context);
             },
           ),
-          backgroundColor: Color.fromARGB(255, 0, 6, 61),
+          backgroundColor: const Color.fromARGB(255, 0, 6, 61),
         ),
         body: Stack(
           children: [
             Center(
                 child: PhotoView(
-              imageProvider: AssetImage("assets/TAJOUART-Mounir_CV.png"),
-              backgroundDecoration: new BoxDecoration(
-                  gradient: new LinearGradient(
+              imageProvider: const AssetImage('assets/TAJOUART-Mounir_CV.png'),
+              backgroundDecoration: const BoxDecoration(
+                  gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
@@ -54,8 +52,8 @@ class _CVScreenState extends State<CVScreen> with TickerProviderStateMixin {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Color.fromARGB(255, 0, 6, 61),
-          child: Icon(Icons.info_outline),
+          backgroundColor: const Color.fromARGB(255, 0, 6, 61),
+          child: const Icon(Icons.info_outline),
           onPressed: () {
             _showMyDialog();
           },
@@ -70,11 +68,11 @@ class _CVScreenState extends State<CVScreen> with TickerProviderStateMixin {
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Double clique pour zoomer'),
-          content: SingleChildScrollView(),
+          title: const Text('Double clique pour zoomer'),
+          content: const SingleChildScrollView(),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },

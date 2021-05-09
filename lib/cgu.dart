@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
 
-class CGUPage extends Page {
-  CGUPage() : super(key: ValueKey("cgu"));
+class CGUPage extends Page<Widget> {
+  const CGUPage() : super(key: const ValueKey('cgu'));
 
-  Route createRoute(BuildContext context) {
+  @override
+  MaterialPageRoute<Widget> createRoute(BuildContext context) {
     return MaterialPageRoute(
       settings: this,
       builder: (BuildContext context) {
@@ -21,28 +22,29 @@ class CGUScreen extends StatefulWidget {
 }
 
 class _CGUScreenState extends State<CGUScreen> with TickerProviderStateMixin {
-  TabController _tabController;
-  TabBar tabBar;
-  AppBar appBar;
+  TabController? _tabController;
+  TabBar? tabBar;
+  AppBar? appBar;
+
   @override
   void initState() {
     appBar = AppBar(
       leading: IconButton(
-        icon: Icon(Icons.close),
+        icon: const Icon(Icons.close),
         onPressed: () {
           Navigator.pop(context);
         },
       ),
-      backgroundColor: Color.fromARGB(255, 0, 0, 0),
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
     );
 
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
-    tabBar = new TabBar(
+    tabBar = TabBar(
       indicatorColor: Colors.transparent,
       labelColor: Colors.grey,
-      labelStyle: TextStyle(fontSize: 20),
+      labelStyle: const TextStyle(fontSize: 20),
       controller: _tabController,
-      tabs: [
+      tabs: const <Widget>[
         Tab(icon: Text('Privacy Policy')),
         Tab(icon: Text('Terms of Service')),
       ],
@@ -53,13 +55,13 @@ class _CGUScreenState extends State<CGUScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController!.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    var isMobile = MediaQuery.of(context).size.width < 414;
+    final bool isMobile = MediaQuery.of(context).size.width < 414;
 
     return DefaultTabController(
       length: 2,
@@ -68,8 +70,8 @@ class _CGUScreenState extends State<CGUScreen> with TickerProviderStateMixin {
         body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          decoration: new BoxDecoration(
-              gradient: new LinearGradient(
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
@@ -77,14 +79,14 @@ class _CGUScreenState extends State<CGUScreen> with TickerProviderStateMixin {
                 Color.fromARGB(255, 0, 6, 61)
               ])),
           child: Column(
-            children: [
+            children: <Widget>[
               Container(width: !isMobile ? 600 : null, child: tabBar),
               Container(
                 color: Colors.black12,
                 height: MediaQuery.of(context).size.height -
-                    (tabBar.preferredSize.height + appBar.preferredSize.height),
+                    (tabBar!.preferredSize.height + appBar!.preferredSize.height),
                 width: !isMobile ? 600 : null,
-                child: new TabBarView(
+                child: TabBarView(
                   controller: _tabController,
                   children: [
                     SingleChildScrollView(
@@ -108,12 +110,12 @@ class _CGUScreenState extends State<CGUScreen> with TickerProviderStateMixin {
   }
 }
 
-var _style = {
+Map<String, Style> _style = {
   // text that renders h1 elements will be red
-  "*": Style(color: Colors.white70),
+  '*': Style(color: Colors.white70),
 };
 
-String _privacy = """
+String _privacy = '''
 <h2>Privacy Policy</h2>
 <p>Your privacy is important to us. It is TAJAOUART Mounir&#39;s policy to respect your privacy and comply with any applicable law and regulation regarding any personal information we may collect about you, including across our website, <a href="https://www.tajaouart.com">https://www.tajaouart.com</a>, and other sites we own and operate. </p>
 <p>This policy is effective as of 26 February 2021 and was last updated on 26 February 2021. </p>
@@ -165,9 +167,9 @@ String _privacy = """
 <p>For any questions or concerns regarding your privacy, you may contact us using the following details: </p>
 <p>tajamnr@gmail.com<br />
 https://www.tajaouart.com </p>
-""";
+''';
 
-String _terms = """
+String _terms = '''
 <h2>Terms of Service</h2>
 <p>These Terms of Service govern your use of the website located at <a href="https://www.tajaouart.com">https://www.tajaouart.com</a> and any related services provided by TAJAOUART Mounir. </p>
 <p>By accessing <a href="https://www.tajaouart.com">https://www.tajaouart.com</a>, you agree to abide by these Terms of Service and to comply with all applicable laws and regulations. If you do not agree with these Terms of Service, you are prohibited from using or accessing this website or using any other services provided by TAJAOUART Mounir. </p>
@@ -205,4 +207,4 @@ String _terms = """
 <h3>Governing Law</h3>
 <p>These Terms of Service are governed by and construed in accordance with the laws of France. You irrevocably submit to the exclusive jurisdiction of the courts in that State or location. </p>
 
-""";
+''';

@@ -9,27 +9,29 @@ import 'models.dart';
 class NoAnimationTransitionDelegate extends TransitionDelegate<void> {
   @override
   Iterable<RouteTransitionRecord> resolve({
-    List<RouteTransitionRecord> newPageRouteHistory,
-    Map<RouteTransitionRecord, RouteTransitionRecord>
+    required List<RouteTransitionRecord> newPageRouteHistory,
+    required Map<RouteTransitionRecord?, RouteTransitionRecord>
         locationToExitingPageRoute,
-    Map<RouteTransitionRecord, List<RouteTransitionRecord>>
+    Map<RouteTransitionRecord?, List<RouteTransitionRecord>>?
         pageRouteToPagelessRoutes,
   }) {
-    final results = <RouteTransitionRecord>[];
+    final List<RouteTransitionRecord> results = <RouteTransitionRecord>[];
 
-    for (final pageRoute in newPageRouteHistory) {
+    for (final RouteTransitionRecord pageRoute in newPageRouteHistory) {
       if (pageRoute.isWaitingForEnteringDecision) {
         pageRoute.markForAdd();
       }
       results.add(pageRoute);
     }
 
-    for (final exitingPageRoute in locationToExitingPageRoute.values) {
+    for (final RouteTransitionRecord exitingPageRoute
+        in locationToExitingPageRoute.values) {
       if (exitingPageRoute.isWaitingForExitingDecision) {
         exitingPageRoute.markForRemove();
-        final pagelessRoutes = pageRouteToPagelessRoutes[exitingPageRoute];
+        final List<RouteTransitionRecord>? pagelessRoutes =
+            pageRouteToPagelessRoutes![exitingPageRoute];
         if (pagelessRoutes != null) {
-          for (final pagelessRoute in pagelessRoutes) {
+          for (final RouteTransitionRecord pagelessRoute in pagelessRoutes) {
             pagelessRoute.markForRemove();
           }
         }
@@ -42,25 +44,25 @@ class NoAnimationTransitionDelegate extends TransitionDelegate<void> {
 }
 
 class ProjectWidget extends StatelessWidget {
-  Project project;
+  const ProjectWidget(this.project);
 
-  ProjectWidget(this.project);
+  final Project project;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 208,
       width: 266,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(4))),
       child: Stack(
         children: [
           Positioned.fill(
             child:
-                (project.state == "in_progress" || project.bigImagePath.isEmpty)
+                (project.state == 'in_progress' || project.bigImagePath.isEmpty)
                     ? SvgPicture.asset(
-                        "assets/in_progress.svg",
+                        'assets/in_progress.svg',
                       )
                     : Image.network(
                         project.bigImagePath.toString(),
@@ -70,12 +72,12 @@ class ProjectWidget extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              decoration: new BoxDecoration(
-                  gradient: new LinearGradient(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Color(int.parse("0xFF${project.color}")).withAlpha(122),
+                colors: <Color>[
+                  Color(int.parse('0xFF${project.color}')).withAlpha(122),
                   Colors.black,
                 ],
               )),
@@ -83,36 +85,37 @@ class ProjectWidget extends StatelessWidget {
               width: 266,
               child: Center(
                 child: Text(
-                  (project.state == "in_progress")
-                      ? "Projet en cours"
+                  (project.state == 'in_progress')
+                      ? 'Projet en cours'
                       : project.name,
-                  style: TextStyle(color: Colors.white, fontSize: 17),
+                  style: const TextStyle(color: Colors.white, fontSize: 17),
                 ),
               ),
             ),
           ),
-          (project.state == "unpublished")
-              ? Positioned.fill(
-                  child: Container(
-                    color: Colors.black.withAlpha(160),
-                    child: (project.state == "published")
-                        ? Center()
-                        : Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "L'application sera publiée prochainement, restez à jours avec mes postes sur LinkedIn",
-                                style: GoogleFonts.roboto(
-                                    backgroundColor: Colors.black87,
-                                    color: Colors.white,
-                                    fontSize: 18),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
+          if (project.state == 'unpublished')
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withAlpha(160),
+                child: (project.state == 'published')
+                    ? const Center()
+                    : Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'L\'application sera publiée prochainement, restez à jours avec mes postes sur LinkedIn',
+                            style: GoogleFonts.roboto(
+                                backgroundColor: Colors.black87,
+                                color: Colors.white,
+                                fontSize: 18),
+                            textAlign: TextAlign.center,
                           ),
-                  ),
-                )
-              : Center()
+                        ),
+                      ),
+              ),
+            )
+          else
+            const Center()
         ],
       ),
     );
@@ -120,19 +123,19 @@ class ProjectWidget extends StatelessWidget {
 }
 
 class CustomTextField extends StatelessWidget {
-  TextEditingController myController;
-  String label;
-  UniqueKey key;
-  int maxLines;
-  bool isOK;
-
-  CustomTextField({
+  const CustomTextField({
     this.maxLines,
-    @required this.label,
-    @required this.key,
-    @required this.myController,
-    @required this.isOK,
+    required this.label,
+    required this.key,
+    required this.myController,
+    required this.isOK,
   });
+
+  final TextEditingController myController;
+  final String label;
+  final UniqueKey key;
+  final int? maxLines;
+  final bool isOK;
 
   @override
   Widget build(BuildContext context) {
@@ -143,19 +146,22 @@ class CustomTextField extends StatelessWidget {
         child: TextField(
           controller: myController,
           maxLines: maxLines,
-          style: TextStyle(
+          style: const TextStyle(
             color: Color(0xFF707070),
           ),
           decoration: InputDecoration(
             alignLabelWithHint: true,
             filled: true,
-            labelStyle: TextStyle(color: Color.fromARGB(255, 182, 42, 222)),
+            labelStyle:
+                const TextStyle(color: Color.fromARGB(255, 182, 42, 222)),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                  color: isOK ? Color.fromARGB(255, 182, 42, 222) : Colors.red),
+                  color: isOK
+                      ? const Color.fromARGB(255, 182, 42, 222)
+                      : Colors.red),
             ),
             fillColor: Colors.transparent,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
             labelText: label,
           ),
         ),
